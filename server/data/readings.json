@@ -1,0 +1,23 @@
+[
+  {
+    "id": "seed-reading-1",
+    "title": "Palsgraf v. Long Island Railroad Co.",
+    "course": "Torts",
+    "dateAdded": "2026-03-05T20:37:56.151Z",
+    "content": "Palsgraf v. Long Island Railroad Co., 248 N.Y. 339, 162 N.E. 99 (1928)\n\nFACTS:\nPlaintiff Helen Palsgraf was standing on a platform of defendant's railroad. As a train began to pull away, a man carrying a package attempted to board it. Two railroad employees helped the man board — one pushed him from behind while another on the platform pulled him forward. During this process, the man dropped his package, which contained fireworks. The fireworks exploded, causing scales at the other end of the platform to fall, injuring Palsgraf.\n\nPROCEDURAL HISTORY:\nThe trial court found for the plaintiff. The Appellate Division affirmed. The Court of Appeals granted certiorari.\n\nISSUE:\nWhether the railroad employees' negligent conduct toward the man with the package was the proximate cause of injuries to Palsgraf, who was standing some distance away on the platform.\n\nHOLDING:\nThe Court of Appeals reversed, holding that the railroad was not liable to Palsgraf. Negligence must be negligence in relation to the plaintiff — a duty must be owed to the plaintiff herself.\n\nREASONING (CARDOZO, C.J.):\nThe risk reasonably to be perceived defines the duty to be obeyed. There was nothing to suggest the parcel concealed a bomb. The act causing the explosion bore no relationship to the plaintiff standing far away. Negligence is not actionable unless it involves the invasion of a legally protected interest.\n\nDISSENT (ANDREWS, J.):\nWhen a person acts negligently, they are liable to all those injured as a result of that negligence. Proximate cause is a matter of policy, not pure logic.\n\nDISPOSITION:\nReversed. Judgment for defendant railroad."
+  },
+  {
+    "id": "seed-reading-2",
+    "title": "Hadley v. Baxendale",
+    "course": "Contracts",
+    "dateAdded": "2026-03-05T20:37:56.152Z",
+    "content": "Hadley v. Baxendale, 9 Exch. 341, 156 Eng. Rep. 145 (1854)\n\nFACTS:\nPlaintiffs operated a flour mill in Gloucester. A crankshaft broke, halting operations. Plaintiffs contracted with defendant carrier Baxendale to transport the broken shaft to the manufacturer. Plaintiffs' employee told Baxendale's clerk the mill was stopped and the shaft had to be sent immediately. Baxendale promised delivery in one day but delayed several days, causing extended lost profits.\n\nPROCEDURAL HISTORY:\nThe trial court found for plaintiff and awarded lost profits. Defendant appealed.\n\nISSUE:\nWhether lost profits from the mill's extended closure are recoverable as damages for breach of the delivery contract.\n\nHOLDING:\nLost profits were not recoverable because they were not within the reasonable contemplation of the parties at the time of contract formation.\n\nRULE:\nDamages should be: (1) arising naturally from the breach, or (2) such as may reasonably be supposed to have been in the contemplation of both parties at contract formation as the probable result of breach.\n\nREASONING:\nThe special circumstances were never communicated to Baxendale such that lost profits were a foreseeable consequence. Under ordinary circumstances a mill owner might have a spare crankshaft.\n\nDISPOSITION:\nNew trial ordered; lost profits damages were improperly awarded."
+  },
+  {
+    "id": "ccdf80ad-97a1-497f-a724-bd2cba6f8dd3",
+    "title": "Bush v Jonson",
+    "course": "Property",
+    "content": "Fight fight fight",
+    "dateAdded": "2026-03-05T20:38:49.815Z"
+  }
+]

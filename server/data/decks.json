@@ -1,0 +1,18 @@
+[
+  {
+    "id": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "name": "deck 1 test",
+    "course": "Contracts",
+    "sourceReadingId": "seed-reading-1",
+    "dateCreated": "2026-03-05T20:41:28.099Z",
+    "cardCount": 8
+  },
+  {
+    "id": "db5aa32f-305e-4b30-beac-89efac382919",
+    "name": "Constutuali law",
+    "course": "Constitutional Law",
+    "sourceReadingId": "seed-reading-1",
+    "dateCreated": "2026-03-05T20:57:17.050Z",
+    "cardCount": 18
+  }
+]

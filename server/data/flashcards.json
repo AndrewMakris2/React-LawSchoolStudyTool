@@ -1,0 +1,275 @@
+[
+  {
+    "id": "1b07b09c-2f95-4c73-a1c9-2253219d7669",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What is the rule for determining duty in a negligence case?",
+    "back": "The rule is that negligence must be negligence in relation to the plaintiff, and a duty must be owed to the plaintiff herself.",
+    "nextReview": "2026-03-06T20:41:31.774Z",
+    "interval": 1,
+    "easeFactor": 1.96,
+    "repetitions": 0,
+    "lastGrade": "hard"
+  },
+  {
+    "id": "f6f8290e-5a0b-4461-8e57-7874aa9be475",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What are the elements of proximate cause in a negligence case?",
+    "back": "The elements are (1) negligence, (2) causation, and (3) a legally protected interest.",
+    "nextReview": "2026-03-06T20:41:33.183Z",
+    "interval": 1,
+    "easeFactor": 1.96,
+    "repetitions": 0,
+    "lastGrade": "hard"
+  },
+  {
+    "id": "ce7c3ba8-8e69-451c-90f7-16c3d905dc02",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What did the court hold in Palsgraf v. Long Island Railroad Co.?",
+    "back": "The court held that the railroad was not liable to Palsgraf because the railroad employees' negligent conduct was not the proximate cause of her injuries.",
+    "nextReview": "2026-03-06T20:41:34.408Z",
+    "interval": 1,
+    "easeFactor": 1.96,
+    "repetitions": 0,
+    "lastGrade": "hard"
+  },
+  {
+    "id": "f1f388d4-bbe4-4c6a-8dd5-7849bed79b19",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What is the policy behind the proximate cause requirement in negligence cases?",
+    "back": "The policy is to limit liability to those whose injuries are reasonably foreseeable, and to prevent liability from extending too far.",
+    "nextReview": "2026-03-06T20:41:36.171Z",
+    "interval": 1,
+    "easeFactor": 2.3600000000000003,
+    "repetitions": 1,
+    "lastGrade": "good"
+  },
+  {
+    "id": "b00ec45b-b305-41ef-83bc-6951825df17e",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What is the rule for determining whether a duty is owed to a particular plaintiff?",
+    "back": "The rule is that the risk reasonably to be perceived defines the duty to be obeyed.",
+    "nextReview": "2026-03-06T20:41:38.065Z",
+    "interval": 1,
+    "easeFactor": 2.3600000000000003,
+    "repetitions": 1,
+    "lastGrade": "good"
+  },
+  {
+    "id": "1d8f3fc3-6539-4fde-9c4a-fe040a33b18d",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "Suppose the man with the package had been carrying a clearly marked box of explosives. Would the railroad employees have owed a duty to Palsgraf?",
+    "back": "Yes, because the risk of harm to Palsgraf would have been reasonably foreseeable.",
+    "hypo": "Man carrying clearly marked box of explosives",
+    "nextReview": "2026-03-05T20:41:28.099Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "a842dbc7-b18f-4fe2-bda4-aecc63b5d084",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "What is the dissent's view on proximate cause?",
+    "back": "The dissent views proximate cause as a matter of policy, not pure logic, and would hold the defendant liable to all those injured as a result of their negligence.",
+    "nextReview": "2026-03-05T20:41:28.099Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "e446d2b5-bd78-47d5-b425-267f71c943ca",
+    "deckId": "96e7bc5b-6f06-4dcb-9d70-13ed5268d8fe",
+    "front": "Suppose the plaintiff had been standing right next to the man with the package when it exploded. Would the railroad employees have been liable for her injuries?",
+    "back": "Yes, because the risk of harm to her would have been more directly related to the negligent conduct.",
+    "hypo": "Plaintiff standing next to man with package",
+    "nextReview": "2026-03-05T20:41:28.099Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "376d2922-dc8f-43ab-b655-2650d30fff41",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the rule for negligence in relation to the plaintiff?",
+    "back": "The rule is that negligence must be negligence in relation to the plaintiff, meaning a duty must be owed to the plaintiff herself, and the risk reasonably to be perceived defines the duty to be obeyed.",
+    "nextReview": "2026-03-06T20:57:24.014Z",
+    "interval": 1,
+    "easeFactor": 2.6,
+    "repetitions": 1,
+    "lastGrade": "easy"
+  },
+  {
+    "id": "618fb669-780c-4dbf-9a5e-58b6bb1babe3",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What are the elements of proximate cause in negligence cases?",
+    "back": "The elements are that the act causing the injury must bear a relationship to the plaintiff, and the risk of harm to the plaintiff must be reasonably perceivable by the defendant.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "e657bde3-188e-4045-ba13-6866a24bbc50",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What did the court hold regarding the railroad's liability to Palsgraf?",
+    "back": "The court held that the railroad was not liable to Palsgraf because the railroad employees' negligent conduct toward the man with the package was not the proximate cause of injuries to Palsgraf, as the risk of harm to her was not reasonably perceivable.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "e801951a-5ea6-4957-97d8-688b65e796fa",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the policy behind the concept of proximate cause?",
+    "back": "The policy is to limit liability to those who are within the zone of risk that is reasonably perceivable by the defendant, and to prevent liability from extending too far, as stated by Judge Andrews, it is a matter of policy, not pure logic.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "8af15ace-ec87-46a2-9ab2-c97c89577963",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "If a defendant's negligence causes a chain of events leading to an injury, what must be shown for the defendant to be liable?",
+    "back": "The defendant must have owed a duty to the plaintiff, and the risk of harm to the plaintiff must have been reasonably perceivable by the defendant, and the act causing the injury must bear a relationship to the plaintiff.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "ae5f1a57-6b9e-4109-92cf-0840f47aeddc",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "Hypo: If the man with the package had been a child, would the railroad employees have owed a duty to Palsgraf?",
+    "back": "No, the railroad employees would still not have owed a duty to Palsgraf, as the risk of harm to her would not have been reasonably perceivable, regardless of the man's characteristics.",
+    "hypo": "A child is carrying a package",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "b154ab51-0fdd-4b69-ba28-3575d50bc1fe",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the relationship between duty and proximate cause in negligence cases?",
+    "back": "Duty and proximate cause are related in that a defendant must owe a duty to the plaintiff, and the breach of that duty must be the proximate cause of the plaintiff's injury, meaning the risk of harm to the plaintiff must be reasonably perceivable by the defendant.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "cd330d42-b89e-4f08-872e-118daec1075c",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "Hypo: If the fireworks had been clearly visible, would the railroad employees have been liable to Palsgraf?",
+    "back": "Possibly, if the risk of harm to Palsgraf had been reasonably perceivable by the railroad employees, they may have owed a duty to her, and their negligence could have been the proximate cause of her injury.",
+    "hypo": "The fireworks were clearly visible",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "72afb721-c0fb-4341-b205-f492e215bd68",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What did Judge Andrews dissent from?",
+    "back": "Judge Andrews dissented from the majority's holding that the railroad was not liable to Palsgraf, arguing that proximate cause is a matter of policy, and that a person who acts negligently is liable to all those injured as a result of that negligence.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "a2ec2160-e81f-45b5-8de3-ded805ed3193",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the test for determining whether a defendant's negligence is the proximate cause of a plaintiff's injury?",
+    "back": "The test is whether the risk of harm to the plaintiff was reasonably perceivable by the defendant, and whether the act causing the injury bears a relationship to the plaintiff.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "a13f6b1f-8a3c-4ae5-9be3-84636686900b",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "Hypo: If the man with the package had been pushed by only one railroad employee, would the railroad have been liable to Palsgraf?",
+    "back": "No, the railroad would still not have been liable to Palsgraf, as the risk of harm to her would not have been reasonably perceivable, regardless of the number of employees involved.",
+    "hypo": "Only one employee pushed the man",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "dcfd2406-05a8-404a-b550-254fe5d56c17",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the requirement for negligence to be actionable?",
+    "back": "Negligence must involve the invasion of a legally protected interest, meaning the plaintiff must have been within the zone of risk that is reasonably perceivable by the defendant, and the defendant must have owed a duty to the plaintiff.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "52ad09b5-403a-49ef-bb6b-df9b7c1383d8",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What did the court reverse?",
+    "back": "The court reversed the judgment of the Appellate Division, which had affirmed the trial court's finding for the plaintiff, and instead found for the defendant railroad.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "a3a05210-44d2-4f43-8818-9887a044854a",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "Hypo: If Palsgraf had been standing next to the man with the package, would the railroad employees have been liable to her?",
+    "back": "Possibly, if Palsgraf had been standing next to the man with the package, the risk of harm to her may have been reasonably perceivable by the railroad employees, and they may have owed a duty to her.",
+    "hypo": "Palsgraf was standing next to the man",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "bf01615a-953c-4348-801d-0987b6025e88",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the duty owed by a defendant to a plaintiff in a negligence case?",
+    "back": "The duty owed by a defendant to a plaintiff is to protect the plaintiff from risks of harm that are reasonably perceivable by the defendant, and to act with reasonable care to prevent harm to the plaintiff.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "d7651d92-79a4-4fd3-8862-3b8a11478f7c",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "Hypo: If the package had contained a harmless item, would the railroad employees have been liable to Palsgraf?",
+    "back": "No, the railroad employees would still not have been liable to Palsgraf, as the risk of harm to her would not have been reasonably perceivable, regardless of the package's contents.",
+    "hypo": "The package contained a harmless item",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "69772f15-9881-4c9d-895e-9ab675e3ed30",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What is the relationship between negligence and proximate cause?",
+    "back": "Negligence and proximate cause are related in that a defendant's negligence must be the proximate cause of a plaintiff's injury, meaning the risk of harm to the plaintiff must be reasonably perceivable by the defendant, and the act causing the injury must bear a relationship to the plaintiff.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  },
+  {
+    "id": "1f8383ab-33f5-42f5-969b-4b48687f4298",
+    "deckId": "db5aa32f-305e-4b30-beac-89efac382919",
+    "front": "What did the court hold regarding the concept of proximate cause?",
+    "back": "The court held that proximate cause is a matter of whether the risk of harm to the plaintiff was reasonably perceivable by the defendant, and whether the act causing the injury bears a relationship to the plaintiff, and not just a matter of pure logic or foreseeability.",
+    "nextReview": "2026-03-05T20:57:17.050Z",
+    "interval": 1,
+    "easeFactor": 2.5,
+    "repetitions": 0
+  }
+]
