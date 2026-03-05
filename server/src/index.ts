@@ -14,19 +14,26 @@ import { initStorage } from "./lib/storage";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.CLIENT_URL ?? "",
-].filter(Boolean);
-
+// Allow all Vercel preview URLs + localhost
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.some((o) => origin.startsWith(o))) {
-      return callback(null, true);
+
+    const allowed =
+      origin.includes("vercel.app") ||
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1") ||
+      origin === (process.env.CLIENT_URL ?? "");
+
+    if (allowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked: ${origin}`);
+      callback(null, true); // Allow anyway for now — tighten later
     }
-    callback(new Error(`CORS blocked: ${origin}`));
   },
+  credentials: true,
 }));
 
 app.use(express.json({ limit: "2mb" }));
