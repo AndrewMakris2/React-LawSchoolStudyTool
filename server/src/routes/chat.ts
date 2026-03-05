@@ -4,7 +4,7 @@ import { getReading } from "../lib/storage";
 import { streamChatCompletion } from "../lib/groqClient";
 import { socraticTutor } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
-import { ChatMessage } from "../../../shared/types";
+import { ChatMessage } from "../types";
 
 const router = Router();
 

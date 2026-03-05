@@ -3,7 +3,7 @@ import { z } from "zod";
 import { v4 as uuid } from "uuid";
 import { getReadings, getReading, saveReading, deleteReading } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
-import { CourseTag, Reading } from "../../../shared/types";
+import { CourseTag, Reading } from "../types";
 
 const router = Router();
 

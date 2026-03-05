@@ -6,7 +6,7 @@ import { chatCompletion } from "../lib/groqClient";
 import { briefBuilder } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { sanitizeJson } from "../lib/sanitizeJson";
-import { CaseBrief } from "../../../shared/types";
+import { CaseBrief } from "../types";
 
 const router = Router();
 

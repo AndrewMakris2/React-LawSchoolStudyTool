@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { getFlashcard, saveFlashcard, getDeck, saveDeck } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
-import { Grade, Flashcard } from "../../../shared/types";
+import { Grade, Flashcard } from "../types";
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { chatCompletion } from "../lib/groqClient";
 import { rulePolisher } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
-import { CourseTag, PolishStyle } from "../../../shared/types";
+import { CourseTag, PolishStyle } from "../types";
 
 const router = Router();
 

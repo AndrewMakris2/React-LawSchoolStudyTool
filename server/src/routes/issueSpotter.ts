@@ -6,7 +6,7 @@ import { issueSpotter, issueSpotterPromptGenerator } from "../lib/prompts";
 import { saveDrillAttempt, getDrillAttempts } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
 import { sanitizeJson } from "../lib/sanitizeJson";
-import { CourseTag, DrillAttempt } from "../../../shared/types";
+import { CourseTag, DrillAttempt } from "../types";
 
 const router = Router();
 

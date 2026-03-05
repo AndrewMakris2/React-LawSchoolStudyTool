@@ -1,28 +1,27 @@
-import { ChatMessage, CourseTag, PolishStyle } from "../types";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.socraticTutor = socraticTutor;
+exports.briefBuilder = briefBuilder;
+exports.rulePolisher = rulePolisher;
+exports.issueSpotter = issueSpotter;
+exports.issueSpotterPromptGenerator = issueSpotterPromptGenerator;
+exports.flashcardGenerator = flashcardGenerator;
 const DISCLAIMER = `IMPORTANT: This tool is for educational purposes only and does not constitute legal advice.`;
-
-export function socraticTutor(
-  readingContent: string,
-  readingTitle: string,
-  chatHistory: ChatMessage[],
-  opts: { coldCall: boolean; strict: boolean; hint: boolean }
-): ChatMessage[] {
-  const modeInstructions = [
-    opts.coldCall
-      ? "COLD CALL MODE: Ask one short, direct question at a time as a law professor would in class. After the student answers, grade their response (Excellent/Adequate/Needs Work) with brief feedback, then immediately ask your next probing question. Never give answers unprompted."
-      : "Ask open-ended Socratic questions. Guide the student to the answer through questioning rather than lecturing.",
-    opts.strict
-      ? "STRICT IRAC MODE: Require the student to structure answers using IRAC (Issue, Rule, Application, Conclusion). If their answer lacks IRAC structure, point this out and ask them to reformat before grading."
-      : "Encourage clear, organized answers but do not rigidly enforce IRAC structure.",
-    opts.hint
-      ? "The student has requested a HINT. Give a minimal hint — one sentence max — that points them in the right direction without revealing the answer. Then continue the Socratic dialogue."
-      : "",
-  ].filter(Boolean).join("\n");
-
-  const system: ChatMessage = {
-    role: "system",
-    content: `You are a rigorous but fair Socratic law school tutor. ${DISCLAIMER}
+function socraticTutor(readingContent, readingTitle, chatHistory, opts) {
+    const modeInstructions = [
+        opts.coldCall
+            ? "COLD CALL MODE: Ask one short, direct question at a time as a law professor would in class. After the student answers, grade their response (Excellent/Adequate/Needs Work) with brief feedback, then immediately ask your next probing question. Never give answers unprompted."
+            : "Ask open-ended Socratic questions. Guide the student to the answer through questioning rather than lecturing.",
+        opts.strict
+            ? "STRICT IRAC MODE: Require the student to structure answers using IRAC (Issue, Rule, Application, Conclusion). If their answer lacks IRAC structure, point this out and ask them to reformat before grading."
+            : "Encourage clear, organized answers but do not rigidly enforce IRAC structure.",
+        opts.hint
+            ? "The student has requested a HINT. Give a minimal hint — one sentence max — that points them in the right direction without revealing the answer. Then continue the Socratic dialogue."
+            : "",
+    ].filter(Boolean).join("\n");
+    const system = {
+        role: "system",
+        content: `You are a rigorous but fair Socratic law school tutor. ${DISCLAIMER}
 
 Your role:
 - Guide students to discover legal principles through questioning, not lecturing
@@ -42,23 +41,18 @@ ${readingContent.slice(0, 6000)}
 ---
 
 Begin by asking an initial probing question about the reading if this is the start of a session.`,
-  };
-
-  return [system, ...chatHistory];
+    };
+    return [system, ...chatHistory];
 }
-
-export function briefBuilder(
-  readingContent: string,
-  readingTitle: string
-): ChatMessage[] {
-  return [
-    {
-      role: "system",
-      content: `You are a precise legal analyst. ${DISCLAIMER} Generate structured case briefs in valid JSON only. No markdown fences, no explanation outside the JSON object. All string values must be on a single line — use spaces instead of newlines inside JSON strings.`,
-    },
-    {
-      role: "user",
-      content: `Generate a complete case brief for the following reading. Return ONLY a valid JSON object with exactly these keys. Do NOT use newlines inside string values — write each field as a single continuous string.
+function briefBuilder(readingContent, readingTitle) {
+    return [
+        {
+            role: "system",
+            content: `You are a precise legal analyst. ${DISCLAIMER} Generate structured case briefs in valid JSON only. No markdown fences, no explanation outside the JSON object. All string values must be on a single line — use spaces instead of newlines inside JSON strings.`,
+        },
+        {
+            role: "user",
+            content: `Generate a complete case brief for the following reading. Return ONLY a valid JSON object with exactly these keys. Do NOT use newlines inside string values — write each field as a single continuous string.
 
 {
   "facts": "single line string",
@@ -75,29 +69,23 @@ READING TITLE: ${readingTitle}
 
 READING:
 ${readingContent.slice(0, 6000)}`,
-    },
-  ];
+        },
+    ];
 }
-
-export function rulePolisher(
-  userRule: string,
-  style: PolishStyle,
-  course?: CourseTag
-): ChatMessage[] {
-  const styleGuide: Record<PolishStyle, string> = {
-    concise:  "1-2 sentences maximum. Strip all hedging language. Pure, clean black-letter rule.",
-    standard: "2-4 sentences. Include key elements/factors. Exam-ready but complete.",
-    verbose:  "Full paragraph. Include majority rule, minority variations, key exceptions, and policy rationale.",
-  };
-
-  return [
-    {
-      role: "system",
-      content: `You are a law school academic expert specializing in rule statements. ${DISCLAIMER} Rewrite rule statements to be exam-ready, precise, and legally accurate.`,
-    },
-    {
-      role: "user",
-      content: `Rewrite this rule statement in ${style.toUpperCase()} style for ${course ?? "law school"}.
+function rulePolisher(userRule, style, course) {
+    const styleGuide = {
+        concise: "1-2 sentences maximum. Strip all hedging language. Pure, clean black-letter rule.",
+        standard: "2-4 sentences. Include key elements/factors. Exam-ready but complete.",
+        verbose: "Full paragraph. Include majority rule, minority variations, key exceptions, and policy rationale.",
+    };
+    return [
+        {
+            role: "system",
+            content: `You are a law school academic expert specializing in rule statements. ${DISCLAIMER} Rewrite rule statements to be exam-ready, precise, and legally accurate.`,
+        },
+        {
+            role: "user",
+            content: `Rewrite this rule statement in ${style.toUpperCase()} style for ${course ?? "law school"}.
 
 Style guide: ${styleGuide[style]}
 
@@ -111,20 +99,14 @@ ORIGINAL RULE STATEMENT:
 ${userRule}
 
 Return ONLY the polished rule statement, no explanation.`,
-    },
-  ];
+        },
+    ];
 }
-
-export function issueSpotter(
-  course: CourseTag,
-  difficulty: "easy" | "medium" | "hard",
-  hypothetical: string,
-  userAnswer: string
-): ChatMessage[] {
-  return [
-    {
-      role: "system",
-      content: `You are a strict, experienced law school professor grading a first-year student's issue-spotting exam answer. ${DISCLAIMER}
+function issueSpotter(course, difficulty, hypothetical, userAnswer) {
+    return [
+        {
+            role: "system",
+            content: `You are a strict, experienced law school professor grading a first-year student's issue-spotting exam answer. ${DISCLAIMER}
 
 GRADING PHILOSOPHY — READ CAREFULLY:
 - You grade like a tough but fair 1L professor at a top-14 law school
@@ -147,10 +129,10 @@ SCORING RUBRIC (each category 0-25, total 0-100):
 - organizationClarity (0-25): Is the answer structured in IRAC or equivalent? Stream of consciousness = 0-8. Partial structure = 9-15. Clear IRAC per issue = 16-25.
 
 Return ONLY a valid JSON object. No markdown, no newlines inside string values, no control characters.`,
-    },
-    {
-      role: "user",
-      content: `Grade this ${difficulty.toUpperCase()} ${course} issue-spotting exam answer STRICTLY per the rubric above.
+        },
+        {
+            role: "user",
+            content: `Grade this ${difficulty.toUpperCase()} ${course} issue-spotting exam answer STRICTLY per the rubric above.
 
 HYPOTHETICAL:
 ${hypothetical}
@@ -167,28 +149,23 @@ GRADING INSTRUCTIONS:
 
 Return ONLY this JSON (no newlines inside strings):
 {"score":{"issueIdentification":0,"ruleAccuracy":0,"applicationQuality":0,"organizationClarity":0,"total":0},"feedback":{"issueIdentification":"specific feedback on what issues were missed or correctly identified","ruleAccuracy":"specific feedback on rule accuracy and missing elements","applicationQuality":"specific feedback on how well facts were applied to rules","organizationClarity":"specific feedback on structure and clarity"},"suggestions":["concrete actionable improvement 1","concrete actionable improvement 2","concrete actionable improvement 3"],"modelOutline":"structured outline of ALL issues a top student would address with rule names and key facts to apply"}`,
-    },
-  ];
+        },
+    ];
 }
-
-export function issueSpotterPromptGenerator(
-  course: CourseTag,
-  difficulty: "easy" | "medium" | "hard"
-): ChatMessage[] {
-  const complexityGuide: Record<string, string> = {
-    easy:   "2-3 issues, single plaintiff/defendant, straightforward facts, one area of law",
-    medium: "3-5 issues, multiple parties, some red herrings in the facts, 1-2 areas of law",
-    hard:   "5-7 issues, multiple parties with cross-claims, intersecting doctrines, procedural complexity, facts that cut both ways",
-  };
-
-  return [
-    {
-      role: "system",
-      content: `You are a law school professor creating realistic 1L exam hypotheticals. ${DISCLAIMER} Create hypotheticals that reward careful reading and penalize superficial analysis. Return ONLY a valid JSON object — no markdown fences, no newlines inside string values.`,
-    },
-    {
-      role: "user",
-      content: `Create a ${difficulty.toUpperCase()} difficulty ${course} issue-spotting hypothetical.
+function issueSpotterPromptGenerator(course, difficulty) {
+    const complexityGuide = {
+        easy: "2-3 issues, single plaintiff/defendant, straightforward facts, one area of law",
+        medium: "3-5 issues, multiple parties, some red herrings in the facts, 1-2 areas of law",
+        hard: "5-7 issues, multiple parties with cross-claims, intersecting doctrines, procedural complexity, facts that cut both ways",
+    };
+    return [
+        {
+            role: "system",
+            content: `You are a law school professor creating realistic 1L exam hypotheticals. ${DISCLAIMER} Create hypotheticals that reward careful reading and penalize superficial analysis. Return ONLY a valid JSON object — no markdown fences, no newlines inside string values.`,
+        },
+        {
+            role: "user",
+            content: `Create a ${difficulty.toUpperCase()} difficulty ${course} issue-spotting hypothetical.
 
 Complexity: ${complexityGuide[difficulty]}
 
@@ -201,23 +178,18 @@ Requirements:
 
 Return ONLY this JSON structure with no newlines inside the string values:
 {"hypothetical":"full fact pattern written as a cohesive narrative paragraph","issueCount":3,"timeRecommendedMinutes":20}`,
-    },
-  ];
+        },
+    ];
 }
-
-export function flashcardGenerator(
-  sourceText: string,
-  course: CourseTag,
-  cardCount = 8
-): ChatMessage[] {
-  return [
-    {
-      role: "system",
-      content: `You are a law school study aid expert. ${DISCLAIMER} Generate high-quality flashcards from legal texts. Return ONLY a valid JSON object — no markdown, no newlines inside string values.`,
-    },
-    {
-      role: "user",
-      content: `Generate ${cardCount} flashcards from this ${course} reading.
+function flashcardGenerator(sourceText, course, cardCount = 8) {
+    return [
+        {
+            role: "system",
+            content: `You are a law school study aid expert. ${DISCLAIMER} Generate high-quality flashcards from legal texts. Return ONLY a valid JSON object — no markdown, no newlines inside string values.`,
+        },
+        {
+            role: "user",
+            content: `Generate ${cardCount} flashcards from this ${course} reading.
 
 Card types to include (mix them):
 - Rule statements (Q: "What is the rule for X?" A: "The rule is...")
@@ -236,6 +208,6 @@ Return ONLY this JSON structure. No newlines inside strings:
 
 SOURCE TEXT:
 ${sourceText.slice(0, 5000)}`,
-    },
-  ];
+        },
+    ];
 }

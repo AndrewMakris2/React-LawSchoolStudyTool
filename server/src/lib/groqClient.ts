@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { ChatMessage } from "../../../shared/types";
+import { ChatMessage } from "../types";
 
 const client = new OpenAI({
   apiKey: process.env.GROQ_API_KEY,

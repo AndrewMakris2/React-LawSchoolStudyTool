@@ -6,7 +6,7 @@ import {
   Flashcard,
   FlashcardDeck,
   DrillAttempt,
-} from "../../../shared/types";
+} from "../types";
 
 export type { Reading, CaseBrief, Flashcard, FlashcardDeck, DrillAttempt };
 

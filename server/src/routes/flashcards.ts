@@ -6,7 +6,7 @@ import { flashcardGenerator } from "../lib/prompts";
 import { getDecks, getDeck, saveDeck, deleteDeck, getFlashcardsByDeck, saveFlashcards, getReading, getBrief } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
 import { sanitizeJson } from "../lib/sanitizeJson";
-import { CourseTag, Flashcard, FlashcardDeck } from "../../../shared/types";
+import { CourseTag, Flashcard, FlashcardDeck } from "../types";
 
 const router = Router();
 

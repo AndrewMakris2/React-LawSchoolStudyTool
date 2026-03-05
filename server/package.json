@@ -33,8 +33,14 @@
     "globals": {
       "ts-jest": {
         "tsconfig": {
-          "rootDir": "../",
-          "strict": false
+          "target": "ES2022",
+          "module": "commonjs",
+          "lib": ["ES2022", "DOM"],
+          "strict": false,
+          "esModuleInterop": true,
+          "skipLibCheck": true,
+          "resolveJsonModule": true,
+          "types": ["node", "jest"]
         }
       }
     }
