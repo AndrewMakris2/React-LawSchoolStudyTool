@@ -6,18 +6,24 @@ import {
   Flashcard,
   FlashcardDeck,
   DrillAttempt,
+  ExamAttempt,
+  GlossaryEntry,
+  CourseOutline,
 } from "../types";
 
-export type { Reading, CaseBrief, Flashcard, FlashcardDeck, DrillAttempt };
+export type { Reading, CaseBrief, Flashcard, FlashcardDeck, DrillAttempt, ExamAttempt, GlossaryEntry, CourseOutline };
 
 const DATA_DIR = path.join(__dirname, "../../data");
 
 const FILES = {
-  readings: path.join(DATA_DIR, "readings.json"),
-  briefs:   path.join(DATA_DIR, "briefs.json"),
+  readings:  path.join(DATA_DIR, "readings.json"),
+  briefs:    path.join(DATA_DIR, "briefs.json"),
   flashcards: path.join(DATA_DIR, "flashcards.json"),
-  decks:    path.join(DATA_DIR, "decks.json"),
-  drills:   path.join(DATA_DIR, "drills.json"),
+  decks:     path.join(DATA_DIR, "decks.json"),
+  drills:    path.join(DATA_DIR, "drills.json"),
+  exams:     path.join(DATA_DIR, "exams.json"),
+  glossary:  path.join(DATA_DIR, "glossary.json"),
+  outlines:  path.join(DATA_DIR, "outlines.json"),
 };
 
 export async function initStorage(): Promise<void> {
@@ -133,6 +139,48 @@ export async function saveDrillAttempt(attempt: DrillAttempt): Promise<void> {
   const all = await getDrillAttempts();
   all.push(attempt);
   await writeFile(FILES.drills, all);
+}
+
+// ── Exams ─────────────────────────────────────────────────────────────────────
+export async function getExamAttempts(): Promise<ExamAttempt[]> {
+  return readFile<ExamAttempt>(FILES.exams);
+}
+export async function saveExamAttempt(attempt: ExamAttempt): Promise<void> {
+  const all = await getExamAttempts();
+  all.push(attempt);
+  await writeFile(FILES.exams, all);
+}
+
+// ── Glossary ──────────────────────────────────────────────────────────────────
+export async function getGlossaryEntries(): Promise<GlossaryEntry[]> {
+  return readFile<GlossaryEntry>(FILES.glossary);
+}
+export async function saveGlossaryEntries(entries: GlossaryEntry[]): Promise<void> {
+  const all = await getGlossaryEntries();
+  for (const entry of entries) {
+    const idx = all.findIndex((e) => e.id === entry.id);
+    if (idx === -1) all.push(entry);
+    else all[idx] = entry;
+  }
+  await writeFile(FILES.glossary, all);
+}
+export async function deleteGlossaryEntry(id: string): Promise<void> {
+  await writeFile(FILES.glossary, (await getGlossaryEntries()).filter((e) => e.id !== id));
+}
+
+// ── Outlines ──────────────────────────────────────────────────────────────────
+export async function getOutlines(): Promise<CourseOutline[]> {
+  return readFile<CourseOutline>(FILES.outlines);
+}
+export async function saveOutline(outline: CourseOutline): Promise<void> {
+  const all = await getOutlines();
+  const idx = all.findIndex((o) => o.id === outline.id);
+  if (idx === -1) all.push(outline);
+  else all[idx] = outline;
+  await writeFile(FILES.outlines, all);
+}
+export async function deleteOutline(id: string): Promise<void> {
+  await writeFile(FILES.outlines, (await getOutlines()).filter((o) => o.id !== id));
 }
 
 // ── Seed ──────────────────────────────────────────────────────────────────────

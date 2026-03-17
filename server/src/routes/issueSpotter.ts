@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
-import { chatCompletion } from "../lib/groqClient";
+import { chatCompletion, resolveApiKey } from "../lib/groqClient";
 import { issueSpotter, issueSpotterPromptGenerator } from "../lib/prompts";
 import { saveDrillAttempt, getDrillAttempts } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
@@ -32,9 +32,10 @@ router.post("/generate", async (req: Request, res: Response, next: NextFunction)
     const parsed = GenerateSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const { course, difficulty } = parsed.data;
     const messages = issueSpotterPromptGenerator(course, difficulty);
-    const raw = await chatCompletion(messages, { temperature: 0.9, maxTokens: 1024 });
+    const raw = await chatCompletion(messages, apiKey, { temperature: 0.9, maxTokens: 1024 });
 
     let result;
     try {
@@ -53,9 +54,10 @@ router.post("/grade", async (req: Request, res: Response, next: NextFunction) =>
     const parsed = GradeSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const { course, difficulty, prompt, userAnswer, timeSpentSeconds } = parsed.data;
     const messages = issueSpotter(course, difficulty, prompt, userAnswer);
-    const raw = await chatCompletion(messages, { temperature: 0.3, maxTokens: 1500 });
+    const raw = await chatCompletion(messages, apiKey, { temperature: 0.3, maxTokens: 1500 });
 
     let graded;
     try {

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
 import { getReading, saveBrief, getBriefs, getBrief, saveReading } from "../lib/storage";
-import { chatCompletion } from "../lib/groqClient";
+import { chatCompletion, resolveApiKey } from "../lib/groqClient";
 import { briefBuilder } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { sanitizeJson } from "../lib/sanitizeJson";
@@ -45,8 +45,9 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const reading = await getReading(parsed.data.readingId);
     if (!reading) return next(createError("Reading not found", 404));
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const messages = briefBuilder(reading.content, reading.title);
-    const raw = await chatCompletion(messages, { temperature: 0.3, maxTokens: 2048 });
+    const raw = await chatCompletion(messages, apiKey, { temperature: 0.3, maxTokens: 2048 });
 
     let parsedBrief: Partial<CaseBrief>;
     try {

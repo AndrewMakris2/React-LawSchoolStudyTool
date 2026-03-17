@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, BookOpen, MessageSquare, FileText, Target, CreditCard, BarChart2, ArrowRight, Sparkles } from "lucide-react";
+import {
+  Scale, BookOpen, MessageSquare, FileText, Target, CreditCard,
+  BarChart2, ArrowRight, Sparkles, ClipboardList, BookMarked, Library, KeyRound,
+} from "lucide-react";
 
 const FEATURES = [
   {
@@ -51,6 +54,30 @@ const FEATURES = [
     color: "text-yellow-400",
     bg: "bg-yellow-900/20 border-yellow-800/50",
   },
+  {
+    icon: ClipboardList,
+    title: "Practice Exams",
+    description: "Timed mixed-format exams (MC + essay). AI-graded with per-question feedback.",
+    href: "/exam",
+    color: "text-violet-400",
+    bg: "bg-violet-900/20 border-violet-800/50",
+  },
+  {
+    icon: BookMarked,
+    title: "Outline Builder",
+    description: "Generate hierarchical course outlines from your readings. Exam-ready structure.",
+    href: "/outline",
+    color: "text-cyan-400",
+    bg: "bg-cyan-900/20 border-cyan-800/50",
+  },
+  {
+    icon: Library,
+    title: "Legal Glossary",
+    description: "Extract and save key legal terms with definitions from your case readings.",
+    href: "/glossary",
+    color: "text-teal-400",
+    bg: "bg-teal-900/20 border-teal-800/50",
+  },
 ];
 
 const COURSES = [
@@ -58,28 +85,29 @@ const COURSES = [
   "Criminal Law", "Property", "Constitutional Law",
 ];
 
-export function Home() {
+interface HomeProps {
+  onSetupKey?: () => void;
+}
+
+export function Home({ onSetupKey }: HomeProps) {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gray-950">
       {/* Hero */}
       <div className="relative overflow-hidden">
-        {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-law-700/20 rounded-full blur-3xl" />
           <div className="absolute -top-20 right-20 w-72 h-72 bg-blue-700/10 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
-          {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="p-3 bg-law-700/30 border border-law-700/50 rounded-2xl">
               <Scale className="text-law-400" size={32} />
             </div>
           </div>
 
-          {/* Headline */}
           <h1 className="text-5xl md:text-6xl font-black text-gray-100 leading-tight mb-6">
             Your 1L{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-law-400 to-blue-400">
@@ -89,17 +117,16 @@ export function Home() {
 
           <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-4">
             Built for first-year law students. Master case readings, survive cold calls,
-            build airtight briefs, and drill issue spotting — all in one place.
+            build airtight briefs, drill issue spotting, and ace practice exams — all in one place.
           </p>
 
           <div className="flex items-center justify-center gap-2 mb-10">
             <Sparkles size={16} className="text-law-400" />
             <p className="text-sm text-gray-500">
-              Powered by Groq · Educational use only · Not legal advice
+              Powered by Groq · Your API key · Educational use only · Not legal advice
             </p>
           </div>
 
-          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => navigate("/readings")}
@@ -108,10 +135,10 @@ export function Home() {
               Get Started <ArrowRight size={18} />
             </button>
             <button
-              onClick={() => navigate("/drills")}
+              onClick={() => navigate("/exam")}
               className="flex items-center gap-2 px-8 py-4 bg-gray-800 hover:bg-gray-700 text-gray-100 font-semibold rounded-xl transition-all text-base border border-gray-700"
             >
-              Try a Drill <Target size={18} />
+              Take a Practice Exam <ClipboardList size={18} />
             </button>
           </div>
         </div>
@@ -145,7 +172,7 @@ export function Home() {
               className={`group text-left p-6 rounded-2xl border ${bg} hover:scale-[1.02] transition-all duration-200`}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`p-2 rounded-xl bg-gray-950/50`}>
+                <div className="p-2 rounded-xl bg-gray-950/50">
                   <Icon className={color} size={22} />
                 </div>
                 <ArrowRight
@@ -171,7 +198,7 @@ export function Home() {
               { step: "1", label: "Add a Reading", desc: "Paste a case or upload a .txt file", icon: BookOpen },
               { step: "2", label: "Generate a Brief", desc: "AI builds your case brief instantly", icon: FileText },
               { step: "3", label: "Study with Tutor", desc: "Get cold-called on the material", icon: MessageSquare },
-              { step: "4", label: "Drill & Track", desc: "Issue spot and watch your scores rise", icon: Target },
+              { step: "4", label: "Exam & Track", desc: "Practice exams and watch scores rise", icon: ClipboardList },
             ].map(({ step, label, desc, icon: Icon }) => (
               <div key={step} className="text-center">
                 <div className="w-10 h-10 bg-law-700/30 border border-law-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -188,9 +215,18 @@ export function Home() {
 
       {/* Footer */}
       <div className="border-t border-gray-900 py-8 text-center">
-        <p className="text-xs text-gray-600">
-          LawStudy 1L Edition · Built with Groq AI · Educational purposes only · Not legal advice
+        <p className="text-xs text-gray-600 mb-2">
+          LawStudy 1L Edition · Powered by Groq AI · Educational purposes only · Not legal advice
         </p>
+        {onSetupKey && (
+          <button
+            onClick={onSetupKey}
+            className="inline-flex items-center gap-1.5 text-xs text-gray-700 hover:text-gray-500 transition-colors"
+          >
+            <KeyRound size={11} />
+            Change API Key
+          </button>
+        )}
       </div>
     </div>
   );

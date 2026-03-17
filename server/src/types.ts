@@ -92,3 +92,72 @@ export interface ReviewRequest {
   cardId: string;
   grade: Grade;
 }
+
+// ── Practice Exams ──────────────────────────────────────────────────────────
+
+export type ExamQuestionType = "mc" | "essay";
+
+export interface ExamQuestion {
+  id: string;
+  type: ExamQuestionType;
+  text: string;
+  options?: string[];      // 4 options for MC
+  correctAnswer?: string;  // For MC: the correct option text
+  points: number;
+}
+
+export interface ExamAttempt {
+  id: string;
+  course: CourseTag;
+  difficulty: "easy" | "medium" | "hard";
+  questions: ExamQuestion[];
+  answers: Record<string, string>;  // questionId -> answer text
+  feedback: ExamQuestionFeedback[];
+  totalScore: number;
+  maxScore: number;
+  dateAttempted: string;
+  timeSpentSeconds: number;
+}
+
+export interface ExamQuestionFeedback {
+  questionId: string;
+  score: number;
+  maxScore: number;
+  feedback: string;
+  correct?: boolean;  // for MC
+}
+
+// ── Glossary ────────────────────────────────────────────────────────────────
+
+export interface GlossaryEntry {
+  id: string;
+  term: string;
+  definition: string;
+  example?: string;
+  course: CourseTag;
+  sourceReadingId?: string;
+  dateAdded: string;
+}
+
+// ── Outline ─────────────────────────────────────────────────────────────────
+
+export interface OutlineSubtopic {
+  title: string;
+  rule: string;
+  cases: string[];
+  notes?: string;
+}
+
+export interface OutlineTopic {
+  title: string;
+  subtopics: OutlineSubtopic[];
+}
+
+export interface CourseOutline {
+  id: string;
+  course: CourseTag;
+  title: string;
+  topics: OutlineTopic[];
+  sourceReadingIds: string[];
+  dateCreated: string;
+}

@@ -1,11 +1,35 @@
-// In production the Vite proxy is not available so we hit the Render URL directly
+// ── API Key helpers ────────────────────────────────────────────────────────────
+const API_KEY_STORAGE = "groq_api_key";
+
+export function getApiKey(): string | null {
+  return localStorage.getItem(API_KEY_STORAGE);
+}
+
+export function setApiKey(key: string): void {
+  localStorage.setItem(API_KEY_STORAGE, key.trim());
+}
+
+export function clearApiKey(): void {
+  localStorage.removeItem(API_KEY_STORAGE);
+}
+
+function apiKeyHeaders(): Record<string, string> {
+  const key = getApiKey();
+  return key ? { "X-Groq-Api-Key": key } : {};
+}
+
+// ── HTTP client ────────────────────────────────────────────────────────────────
 const BASE = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : "/api";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...apiKeyHeaders(),
+      ...options.headers,
+    },
     ...options,
   });
   if (!res.ok) {
@@ -85,9 +109,51 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ cardId, grade }),
     }),
+
+  exam: {
+    generate: (data: { course: CourseTag; difficulty: Difficulty; questionCount: number }) =>
+      request<{ questions: ExamQuestion[] }>("/exam/generate", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    submit: (data: {
+      course: CourseTag;
+      difficulty: Difficulty;
+      questions: ExamQuestion[];
+      answers: Record<string, string>;
+      timeSpentSeconds: number;
+    }) =>
+      request<ExamSubmitResult>("/exam/submit", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    history: () => request<ExamAttempt[]>("/exam/history"),
+  },
+
+  outline: {
+    list: () => request<CourseOutline[]>("/outline"),
+    generate: (data: { course: CourseTag; readingIds: string[]; title?: string }) =>
+      request<CourseOutline>("/outline/generate", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      request<{ success: boolean }>(`/outline/${id}`, { method: "DELETE" }),
+  },
+
+  glossary: {
+    list: () => request<GlossaryEntry[]>("/glossary"),
+    extract: (readingId: string) =>
+      request<GlossaryEntry[]>("/glossary/extract", {
+        method: "POST",
+        body: JSON.stringify({ readingId }),
+      }),
+    delete: (id: string) =>
+      request<{ success: boolean }>(`/glossary/${id}`, { method: "DELETE" }),
+  },
 };
 
-// Streaming chat — hits Render URL directly in production
+// ── Streaming chat ─────────────────────────────────────────────────────────────
 export async function streamChat(
   payload: {
     readingId: string;
@@ -106,7 +172,10 @@ export async function streamChat(
 
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...apiKeyHeaders(),
+    },
     body: JSON.stringify(payload),
   });
 
@@ -138,7 +207,7 @@ export async function streamChat(
   onDone();
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────
 export type CourseTag =
   | "Contracts" | "Torts" | "Civil Procedure" | "Criminal Law"
   | "Property" | "Constitutional Law" | "Other";
@@ -146,6 +215,7 @@ export type CourseTag =
 export type PolishStyle = "concise" | "standard" | "verbose";
 export type Grade       = "again" | "hard" | "good" | "easy";
 export type Difficulty  = "easy" | "medium" | "hard";
+export type ExamQuestionType = "mc" | "essay";
 
 export interface Reading {
   id: string; title: string; course: CourseTag; content: string;
@@ -183,4 +253,46 @@ export interface GradeResult {
   suggestions: string[];
   modelOutline: string;
   attemptId: string;
+}
+export interface ExamQuestion {
+  id: string;
+  type: ExamQuestionType;
+  text: string;
+  options?: string[];
+  correctAnswer?: string;
+  points: number;
+}
+export interface ExamQuestionFeedback {
+  questionId: string;
+  score: number;
+  maxScore: number;
+  feedback: string;
+  correct?: boolean;
+}
+export interface ExamAttempt {
+  id: string; course: CourseTag; difficulty: Difficulty;
+  questions: ExamQuestion[]; answers: Record<string, string>;
+  feedback: ExamQuestionFeedback[];
+  totalScore: number; maxScore: number;
+  dateAttempted: string; timeSpentSeconds: number;
+}
+export interface ExamSubmitResult {
+  attemptId: string;
+  totalScore: number;
+  maxScore: number;
+  feedback: ExamQuestionFeedback[];
+}
+export interface GlossaryEntry {
+  id: string; term: string; definition: string; example?: string;
+  course: CourseTag; sourceReadingId?: string; dateAdded: string;
+}
+export interface OutlineSubtopic {
+  title: string; rule: string; cases: string[]; notes?: string;
+}
+export interface OutlineTopic {
+  title: string; subtopics: OutlineSubtopic[];
+}
+export interface CourseOutline {
+  id: string; course: CourseTag; title: string;
+  topics: OutlineTopic[]; sourceReadingIds: string[]; dateCreated: string;
 }

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
-import { chatCompletion } from "../lib/groqClient";
+import { chatCompletion, resolveApiKey } from "../lib/groqClient";
 import { flashcardGenerator } from "../lib/prompts";
 import { getDecks, getDeck, saveDeck, deleteDeck, getFlashcardsByDeck, saveFlashcards, getReading, getBrief } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
@@ -82,8 +82,9 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       return next(createError("Must provide sourceReadingId or sourceBriefId", 400));
     }
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const messages = flashcardGenerator(sourceText, course, cardCount);
-    const raw = await chatCompletion(messages, { temperature: 0.7, maxTokens: 2048 });
+    const raw = await chatCompletion(messages, apiKey, { temperature: 0.7, maxTokens: 2048 });
 
     let result;
     try {

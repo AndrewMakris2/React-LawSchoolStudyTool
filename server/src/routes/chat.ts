@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { getReading } from "../lib/storage";
-import { streamChatCompletion } from "../lib/groqClient";
+import { streamChatCompletion, resolveApiKey } from "../lib/groqClient";
 import { socraticTutor } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { ChatMessage } from "../types";
@@ -31,7 +31,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const reading = await getReading(readingId);
     if (!reading) return next(createError("Reading not found", 404));
 
-    // Cast zod-parsed messages to ChatMessage[] — roles are already validated as the correct literals
     const typedMessages = messages as ChatMessage[];
 
     const fullMessages = socraticTutor(reading.content, reading.title, typedMessages, {
@@ -40,6 +39,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       hint: hintRequested,
     });
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
+
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -47,6 +48,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     await streamChatCompletion(
       fullMessages,
+      apiKey,
       (chunk) => {
         res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
       },
