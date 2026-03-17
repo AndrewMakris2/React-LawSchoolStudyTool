@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { chatCompletion } from "../lib/groqClient";
+import { chatCompletion, resolveApiKey } from "../lib/groqClient";
 import { rulePolisher } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { CourseTag, PolishStyle } from "../types";
@@ -22,9 +22,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const parsed = RulePolishSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
+    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const { userRule, style, course } = parsed.data;
     const messages = rulePolisher(userRule, style, course);
-    const result = await chatCompletion(messages, { temperature: 0.4, maxTokens: 512 });
+    const result = await chatCompletion(messages, apiKey, { temperature: 0.4, maxTokens: 512 });
 
     res.json({ polished: result.trim() });
   } catch (err) { next(err); }

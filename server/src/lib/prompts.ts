@@ -1,4 +1,4 @@
-import { ChatMessage, CourseTag, PolishStyle } from "../types";
+import { ChatMessage, CourseTag, PolishStyle, ExamQuestion } from "../types";
 
 const DISCLAIMER = `IMPORTANT: This tool is for educational purposes only and does not constitute legal advice.`;
 
@@ -236,6 +236,150 @@ Return ONLY this JSON structure. No newlines inside strings:
 
 SOURCE TEXT:
 ${sourceText.slice(0, 5000)}`,
+    },
+  ];
+}
+
+// ── Practice Exam Generator ───────────────────────────────────────────────────
+
+export function practiceExamGenerator(
+  course: CourseTag,
+  difficulty: "easy" | "medium" | "hard",
+  questionCount: number
+): ChatMessage[] {
+  const mcCount = Math.ceil(questionCount * 0.6);
+  const essayCount = questionCount - mcCount;
+
+  return [
+    {
+      role: "system",
+      content: `You are a law school professor creating a rigorous practice exam. ${DISCLAIMER} Return ONLY a valid JSON object — no markdown fences, no newlines inside string values.`,
+    },
+    {
+      role: "user",
+      content: `Create a ${difficulty.toUpperCase()} ${course} practice exam with ${questionCount} questions: ${mcCount} multiple-choice and ${essayCount} short-answer/essay.
+
+MULTIPLE CHOICE requirements:
+- 4 answer options labeled A, B, C, D
+- One clearly correct answer
+- Distractors should reflect common student misconceptions
+- Test rule application, not just definition recall
+- correctAnswer should be the full text of the correct option (not just "A" or "B")
+
+SHORT ANSWER/ESSAY requirements:
+- Require IRAC-style analysis
+- Should take 5-8 minutes each
+- Include specific facts that trigger multiple legal issues
+
+Return ONLY this JSON (no newlines inside strings):
+{"questions":[{"id":"q1","type":"mc","text":"question text","options":["A. option text","B. option text","C. option text","D. option text"],"correctAnswer":"A. option text","points":5},{"id":"q2","type":"essay","text":"fact pattern and question","points":15}]}
+
+COURSE: ${course}
+DIFFICULTY: ${difficulty}
+Total questions: ${questionCount} (${mcCount} MC worth 5pts each, ${essayCount} essay worth 15pts each)`,
+    },
+  ];
+}
+
+export function practiceExamEssayGrader(
+  course: CourseTag,
+  question: ExamQuestion,
+  answer: string
+): ChatMessage[] {
+  return [
+    {
+      role: "system",
+      content: `You are a strict law school professor grading a short-answer exam response. ${DISCLAIMER} Grade on IRAC quality. Return ONLY a valid JSON object — no markdown, no newlines inside strings.`,
+    },
+    {
+      role: "user",
+      content: `Grade this ${course} short-answer response. Maximum points: ${question.points}.
+
+QUESTION:
+${question.text}
+
+STUDENT ANSWER:
+${answer}
+
+Scoring criteria (strict):
+- 0-30%: No legal analysis, just conclusions
+- 31-60%: Identifies issues but rules missing or vague
+- 61-80%: Correct rules, incomplete application
+- 81-100%: Full IRAC, all issues spotted, fact-specific analysis
+
+Return ONLY this JSON:
+{"score":${question.points},"feedback":"specific feedback on rule accuracy and application quality","missedIssues":"key issues or rules the student missed or stated incorrectly"}
+
+Replace ${question.points} with the actual numeric score earned (0 to ${question.points}).`,
+    },
+  ];
+}
+
+// ── Outline Builder ───────────────────────────────────────────────────────────
+
+export function outlineBuilder(
+  course: CourseTag,
+  readingsContent: string
+): ChatMessage[] {
+  return [
+    {
+      role: "system",
+      content: `You are a law school academic expert creating comprehensive course outlines. ${DISCLAIMER} Build hierarchical outlines that serve as exam study guides. Return ONLY a valid JSON object — no markdown fences, no newlines inside string values.`,
+    },
+    {
+      role: "user",
+      content: `Create a comprehensive ${course} outline from the provided readings.
+
+Structure each topic as:
+- Major topic (e.g., "Negligence", "Offer and Acceptance")
+- Subtopics with: rule statement, key cases, notes
+
+Requirements:
+- Cover ALL legal doctrines present in the readings
+- Rule statements must be exam-ready (elements listed)
+- Cases should include short holding summaries
+- Notes should flag majority/minority splits or policy considerations
+
+Return ONLY this JSON (no newlines inside strings):
+{"topics":[{"title":"Major Topic","subtopics":[{"title":"Subtopic","rule":"complete rule statement with elements","cases":["Case Name — one line holding"],"notes":"optional majority/minority or policy note"}]}]}
+
+READINGS:
+${readingsContent.slice(0, 8000)}`,
+    },
+  ];
+}
+
+// ── Glossary Extractor ────────────────────────────────────────────────────────
+
+export function glossaryExtractor(
+  course: CourseTag,
+  readingContent: string,
+  readingTitle: string
+): ChatMessage[] {
+  return [
+    {
+      role: "system",
+      content: `You are a legal education expert. ${DISCLAIMER} Extract key legal terms and definitions from case readings. Return ONLY a valid JSON object — no markdown, no newlines inside string values.`,
+    },
+    {
+      role: "user",
+      content: `Extract 10-15 key legal terms from this ${course} reading. Focus on:
+- Black-letter legal rules and doctrines
+- Terms of art with specific legal meanings
+- Elements of legal tests mentioned in the case
+- Procedural terms used
+
+For each term:
+- "term": the legal term or doctrine name
+- "definition": precise legal definition with elements if applicable (exam-ready)
+- "example": brief example from the reading showing how it applies (1 sentence, optional)
+
+Return ONLY this JSON (no newlines inside strings):
+{"terms":[{"term":"legal term","definition":"precise definition with elements","example":"brief example or null"}]}
+
+READING TITLE: ${readingTitle}
+READING:
+${readingContent.slice(0, 6000)}`,
     },
   ];
 }

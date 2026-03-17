@@ -9,6 +9,9 @@ import rulePolishRouter from "./routes/rulePolish";
 import issueSpotterRouter from "./routes/issueSpotter";
 import flashcardsRouter from "./routes/flashcards";
 import reviewRouter from "./routes/review";
+import examRouter from "./routes/exam";
+import outlineRouter from "./routes/outline";
+import glossaryRouter from "./routes/glossary";
 import { initStorage } from "./lib/storage";
 
 const app = express();
@@ -17,7 +20,6 @@ const PORT = process.env.PORT || 3001;
 // Allow all Vercel preview URLs + localhost
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
 
     const allowed =
@@ -30,7 +32,7 @@ app.use(cors({
       callback(null, true);
     } else {
       console.warn(`CORS blocked: ${origin}`);
-      callback(null, true); // Allow anyway for now — tighten later
+      callback(null, true);
     }
   },
   credentials: true,
@@ -45,6 +47,9 @@ app.use("/api/rule-polish",   rulePolishRouter);
 app.use("/api/issue-spotter", issueSpotterRouter);
 app.use("/api/flashcards",    flashcardsRouter);
 app.use("/api/review",        reviewRouter);
+app.use("/api/exam",          examRouter);
+app.use("/api/outline",       outlineRouter);
+app.use("/api/glossary",      glossaryRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", model: process.env.GROQ_MODEL });
