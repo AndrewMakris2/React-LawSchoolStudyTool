@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import { api, Reading, CourseTag } from "../api/client";
+import { api, Reading, CourseTag, GlossaryEntry } from "../api/client";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Spinner } from "../components/ui/Spinner";
 import { Modal } from "../components/ui/Modal";
+import { GlossaryText } from "../components/GlossaryText";
 import { Plus, Trash2, Eye, Upload, BookOpen } from "lucide-react";
 
 const COURSES: CourseTag[] = [
@@ -24,6 +25,7 @@ export function Readings() {
   const [content, setContent]         = useState("");
   const [saving, setSaving]           = useState(false);
   const [formError, setFormError]     = useState("");
+  const [glossaryTerms, setGlossaryTerms] = useState<GlossaryEntry[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -38,6 +40,7 @@ export function Readings() {
   };
 
   useEffect(() => { load(); }, []);
+  useEffect(() => { api.glossary.list().then(setGlossaryTerms); }, []);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -199,7 +202,10 @@ export function Readings() {
               <span className="text-xs text-gray-500">Added {new Date(selected.dateAdded).toLocaleDateString()}</span>
             </div>
             <pre className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300 overflow-auto max-h-[60vh] whitespace-pre-wrap font-mono leading-relaxed">
-              {selected.content}
+              <GlossaryText
+                text={selected.content}
+                terms={glossaryTerms.filter((g) => g.course === selected.course)}
+              />
             </pre>
           </div>
         )}

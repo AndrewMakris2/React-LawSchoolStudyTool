@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BookMarked, ChevronRight, ChevronDown, Trash2, Copy, Check, Loader2, Plus } from "lucide-react";
 import { api, CourseTag, Reading, CourseOutline } from "../api/client";
+import { PrintButton } from "../components/PrintButton";
 
 const COURSES: CourseTag[] = [
   "Contracts", "Torts", "Civil Procedure", "Criminal Law", "Property", "Constitutional Law", "Other",
@@ -107,7 +108,7 @@ export function Outline() {
 
       <div className="grid lg:grid-cols-5 gap-6">
         {/* Left: generate form + outline list */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="no-print lg:col-span-2 space-y-4">
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-4">
             <h2 className="text-sm font-semibold text-gray-300">Generate New Outline</h2>
 
@@ -218,20 +219,27 @@ export function Outline() {
               <p className="text-sm text-gray-500">Generate or select an outline to view it here</p>
             </div>
           ) : (
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+            <div className="printable-area bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
               {/* Outline header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
                 <div>
                   <h2 className="font-bold text-gray-100">{activeOutline.title}</h2>
                   <p className="text-xs text-gray-500">{activeOutline.course} · {activeOutline.topics.length} topics</p>
                 </div>
-                <button
-                  onClick={() => copyOutline(activeOutline)}
-                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors"
-                >
-                  {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  {copied ? "Copied!" : "Copy"}
-                </button>
+                <div className="no-print flex items-center gap-4">
+                  <button
+                    onClick={() => copyOutline(activeOutline)}
+                    className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                    {copied ? "Copied!" : "Copy"}
+                  </button>
+                  <PrintButton
+                    onBeforePrint={() =>
+                      setExpandedTopics(new Set(activeOutline.topics.map((_, i) => i)))
+                    }
+                  />
+                </div>
               </div>
 
               {/* Topics */}

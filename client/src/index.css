@@ -16,3 +16,23 @@
     @apply bg-gray-700 rounded-full;
   }
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .printable-area {
+    background: #fff !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .printable-area,
+  .printable-area * {
+    color: #111 !important;
+    background-color: transparent !important;
+    border-color: #ddd !important;
+  }
+}

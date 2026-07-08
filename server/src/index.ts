@@ -17,13 +17,14 @@ import { initStorage } from "./lib/storage";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Allow all Vercel preview URLs + localhost
+// Allow all Vercel/Netlify preview URLs + localhost
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
 
     const allowed =
       origin.includes("vercel.app") ||
+      origin.includes("netlify.app") ||
       origin.includes("localhost") ||
       origin.includes("127.0.0.1") ||
       origin === (process.env.CLIENT_URL ?? "");

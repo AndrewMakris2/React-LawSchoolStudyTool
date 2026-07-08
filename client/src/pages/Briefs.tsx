@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { api, CaseBrief, Reading, PolishStyle } from "../api/client";
+import { api, CaseBrief, Reading, PolishStyle, GlossaryEntry } from "../api/client";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Spinner } from "../components/ui/Spinner";
 import { Modal } from "../components/ui/Modal";
 import { FileText, Wand2, Save, ChevronDown, ChevronUp } from "lucide-react";
+import { PrintButton } from "../components/PrintButton";
+import { GlossaryText } from "../components/GlossaryText";
+
+const GLOSSARY_LINKED_FIELDS = new Set(["rule", "reasoning", "holding"]);
 
 const FIELDS: { key: keyof CaseBrief; label: string }[] = [
   { key: "facts",             label: "Facts" },
@@ -34,6 +38,7 @@ export function Briefs() {
   const [polishing, setPolishing]     = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError]             = useState("");
+  const [glossaryTerms, setGlossaryTerms] = useState<GlossaryEntry[]>([]);
 
   const load = async () => {
     try {
@@ -49,6 +54,7 @@ export function Briefs() {
   };
 
   useEffect(() => { load(); }, []);
+  useEffect(() => { api.glossary.list().then(setGlossaryTerms); }, []);
 
   const openBrief = (brief: CaseBrief) => {
     setSelected(brief);
@@ -213,13 +219,13 @@ export function Briefs() {
           {/* Right: Brief Editor */}
           <div>
             {selected ? (
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 sticky top-6">
+              <div className="no-print bg-gray-900 border border-gray-800 rounded-xl p-5 sticky top-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="font-semibold text-gray-100">{selected.title}</h2>
                     <Badge label={selected.course} variant="course" />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Button
                       size="sm"
                       variant="secondary"
@@ -231,6 +237,7 @@ export function Briefs() {
                       <Save size={14} />
                       {saveSuccess ? "Saved!" : "Save"}
                     </Button>
+                    <PrintButton />
                   </div>
                 </div>
 
@@ -275,27 +282,52 @@ export function Briefs() {
 
                 {/* Fields */}
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-                  {FIELDS.map(({ key, label }) => (
-                    <div key={key}>
-                      <label className="block text-xs font-semibold text-law-400 uppercase tracking-wide mb-1">
-                        {label}
-                      </label>
-                      <textarea
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-law-500 resize-none"
-                        rows={key === "facts" || key === "reasoning" ? 5 : 3}
-                        value={(editing[key] as string) ?? ""}
-                        onChange={(e) =>
-                          setEditing((prev) => ({ ...prev, [key]: e.target.value }))
-                        }
-                      />
-                    </div>
-                  ))}
+                  {FIELDS.map(({ key, label }) => {
+                    const courseTerms = glossaryTerms.filter((g) => g.course === selected.course);
+                    const fieldValue = (editing[key] as string) ?? "";
+                    return (
+                      <div key={key}>
+                        <label className="block text-xs font-semibold text-law-400 uppercase tracking-wide mb-1">
+                          {label}
+                        </label>
+                        <textarea
+                          className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-law-500 resize-none"
+                          rows={key === "facts" || key === "reasoning" ? 5 : 3}
+                          value={fieldValue}
+                          onChange={(e) =>
+                            setEditing((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                        />
+                        {GLOSSARY_LINKED_FIELDS.has(key) && courseTerms.length > 0 && fieldValue && (
+                          <p className="mt-1.5 text-xs text-gray-500 leading-relaxed">
+                            <GlossaryText text={fieldValue} terms={courseTerms} />
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500 border border-dashed border-gray-800 rounded-xl">
                 <FileText size={32} className="mb-3 opacity-30" />
                 <p className="text-sm">Select a brief to view and edit</p>
+              </div>
+            )}
+
+            {/* Print-only read view (edit form above is hidden via .no-print) */}
+            {selected && (
+              <div className="printable-area hidden print:block p-6">
+                <h1 className="text-2xl font-bold mb-1">{selected.title}</h1>
+                <p className="text-sm mb-6">{selected.course}</p>
+                {FIELDS.map(({ key, label }) => (
+                  <div key={key} className="mb-4">
+                    <h3 className="font-semibold uppercase text-xs tracking-wide mb-1">{label}</h3>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {(editing[key] as string) ?? ""}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
           </div>

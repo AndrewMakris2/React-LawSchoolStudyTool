@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   BookOpen, MessageSquare, FileText, Target, CreditCard,
-  BarChart2, Scale, ClipboardList, BookMarked, Library, KeyRound,
+  BarChart2, Scale, ClipboardList, BookMarked, Library, KeyRound, Search,
 } from "lucide-react";
 import { clearApiKey } from "../api/client";
 
@@ -23,16 +23,17 @@ const NAV_TOOLS = [
 
 interface SidebarProps {
   onClearKey?: () => void;
+  onOpenSearch?: () => void;
 }
 
-export function Sidebar({ onClearKey }: SidebarProps) {
+export function Sidebar({ onClearKey, onOpenSearch }: SidebarProps) {
   function handleChangeKey() {
     clearApiKey();
     onClearKey?.();
   }
 
   return (
-    <aside className="w-56 shrink-0 bg-gray-950 border-r border-gray-800 flex flex-col h-screen sticky top-0">
+    <aside className="no-print w-56 shrink-0 bg-gray-950 border-r border-gray-800 flex flex-col h-screen sticky top-0">
       <div className="px-5 py-6 border-b border-gray-800">
         <div className="flex items-center gap-2.5">
           <Scale className="text-law-400" size={22} />
@@ -41,6 +42,17 @@ export function Sidebar({ onClearKey }: SidebarProps) {
             <p className="text-xs text-gray-500 mt-0.5">1L Edition</p>
           </div>
         </div>
+      </div>
+
+      <div className="px-3 pt-3">
+        <button
+          onClick={onOpenSearch}
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 bg-gray-900/60 border border-gray-800 hover:text-gray-300 hover:border-gray-700 transition-all"
+        >
+          <Search size={15} />
+          <span className="flex-1 text-left">Search</span>
+          <kbd className="text-[10px] text-gray-600 border border-gray-700 rounded px-1.5 py-0.5">⌘K</kbd>
+        </button>
       </div>
 
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
