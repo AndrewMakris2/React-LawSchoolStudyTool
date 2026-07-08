@@ -47,8 +47,9 @@ router.post("/", async (req, res, next) => {
         const reading = await (0, storage_1.getReading)(parsed.data.readingId);
         if (!reading)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
+        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const messages = (0, prompts_1.briefBuilder)(reading.content, reading.title);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, { temperature: 0.3, maxTokens: 2048 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.3, maxTokens: 2048 });
         let parsedBrief;
         try {
             parsedBrief = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));

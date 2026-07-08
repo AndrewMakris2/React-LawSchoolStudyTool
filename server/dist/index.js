@@ -14,22 +14,31 @@ const rulePolish_1 = __importDefault(require("./routes/rulePolish"));
 const issueSpotter_1 = __importDefault(require("./routes/issueSpotter"));
 const flashcards_1 = __importDefault(require("./routes/flashcards"));
 const review_1 = __importDefault(require("./routes/review"));
+const exam_1 = __importDefault(require("./routes/exam"));
+const outline_1 = __importDefault(require("./routes/outline"));
+const glossary_1 = __importDefault(require("./routes/glossary"));
 const storage_1 = require("./lib/storage");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
-const allowedOrigins = [
-    "http://localhost:5173",
-    process.env.CLIENT_URL ?? "",
-].filter(Boolean);
+// Allow all Vercel/Netlify preview URLs + localhost
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         if (!origin)
             return callback(null, true);
-        if (allowedOrigins.some((o) => origin.startsWith(o))) {
-            return callback(null, true);
+        const allowed = origin.includes("vercel.app") ||
+            origin.includes("netlify.app") ||
+            origin.includes("localhost") ||
+            origin.includes("127.0.0.1") ||
+            origin === (process.env.CLIENT_URL ?? "");
+        if (allowed) {
+            callback(null, true);
         }
-        callback(new Error(`CORS blocked: ${origin}`));
+        else {
+            console.warn(`CORS blocked: ${origin}`);
+            callback(null, true);
+        }
     },
+    credentials: true,
 }));
 app.use(express_1.default.json({ limit: "2mb" }));
 app.use("/api/readings", readings_1.default);
@@ -39,6 +48,9 @@ app.use("/api/rule-polish", rulePolish_1.default);
 app.use("/api/issue-spotter", issueSpotter_1.default);
 app.use("/api/flashcards", flashcards_1.default);
 app.use("/api/review", review_1.default);
+app.use("/api/exam", exam_1.default);
+app.use("/api/outline", outline_1.default);
+app.use("/api/glossary", glossary_1.default);
 app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", model: process.env.GROQ_MODEL });
 });

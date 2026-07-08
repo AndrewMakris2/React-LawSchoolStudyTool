@@ -23,6 +23,14 @@ exports.saveFlashcard = saveFlashcard;
 exports.saveFlashcards = saveFlashcards;
 exports.getDrillAttempts = getDrillAttempts;
 exports.saveDrillAttempt = saveDrillAttempt;
+exports.getExamAttempts = getExamAttempts;
+exports.saveExamAttempt = saveExamAttempt;
+exports.getGlossaryEntries = getGlossaryEntries;
+exports.saveGlossaryEntries = saveGlossaryEntries;
+exports.deleteGlossaryEntry = deleteGlossaryEntry;
+exports.getOutlines = getOutlines;
+exports.saveOutline = saveOutline;
+exports.deleteOutline = deleteOutline;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const DATA_DIR = path_1.default.join(__dirname, "../../data");
@@ -32,6 +40,9 @@ const FILES = {
     flashcards: path_1.default.join(DATA_DIR, "flashcards.json"),
     decks: path_1.default.join(DATA_DIR, "decks.json"),
     drills: path_1.default.join(DATA_DIR, "drills.json"),
+    exams: path_1.default.join(DATA_DIR, "exams.json"),
+    glossary: path_1.default.join(DATA_DIR, "glossary.json"),
+    outlines: path_1.default.join(DATA_DIR, "outlines.json"),
 };
 async function initStorage() {
     await promises_1.default.mkdir(DATA_DIR, { recursive: true });
@@ -150,6 +161,49 @@ async function saveDrillAttempt(attempt) {
     const all = await getDrillAttempts();
     all.push(attempt);
     await writeFile(FILES.drills, all);
+}
+// ── Exams ─────────────────────────────────────────────────────────────────────
+async function getExamAttempts() {
+    return readFile(FILES.exams);
+}
+async function saveExamAttempt(attempt) {
+    const all = await getExamAttempts();
+    all.push(attempt);
+    await writeFile(FILES.exams, all);
+}
+// ── Glossary ──────────────────────────────────────────────────────────────────
+async function getGlossaryEntries() {
+    return readFile(FILES.glossary);
+}
+async function saveGlossaryEntries(entries) {
+    const all = await getGlossaryEntries();
+    for (const entry of entries) {
+        const idx = all.findIndex((e) => e.id === entry.id);
+        if (idx === -1)
+            all.push(entry);
+        else
+            all[idx] = entry;
+    }
+    await writeFile(FILES.glossary, all);
+}
+async function deleteGlossaryEntry(id) {
+    await writeFile(FILES.glossary, (await getGlossaryEntries()).filter((e) => e.id !== id));
+}
+// ── Outlines ──────────────────────────────────────────────────────────────────
+async function getOutlines() {
+    return readFile(FILES.outlines);
+}
+async function saveOutline(outline) {
+    const all = await getOutlines();
+    const idx = all.findIndex((o) => o.id === outline.id);
+    if (idx === -1)
+        all.push(outline);
+    else
+        all[idx] = outline;
+    await writeFile(FILES.outlines, all);
+}
+async function deleteOutline(id) {
+    await writeFile(FILES.outlines, (await getOutlines()).filter((o) => o.id !== id));
 }
 // ── Seed ──────────────────────────────────────────────────────────────────────
 async function seedDemoData() {

@@ -26,18 +26,18 @@ router.post("/", async (req, res, next) => {
         const reading = await (0, storage_1.getReading)(readingId);
         if (!reading)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
-        // Cast zod-parsed messages to ChatMessage[] — roles are already validated as the correct literals
         const typedMessages = messages;
         const fullMessages = (0, prompts_1.socraticTutor)(reading.content, reading.title, typedMessages, {
             coldCall: coldCallMode,
             strict: strictMode,
             hint: hintRequested,
         });
+        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         res.setHeader("Content-Type", "text/event-stream");
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
         res.flushHeaders();
-        await (0, groqClient_1.streamChatCompletion)(fullMessages, (chunk) => {
+        await (0, groqClient_1.streamChatCompletion)(fullMessages, apiKey, (chunk) => {
             res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
         }, { temperature: 0.8, maxTokens: 1024 });
         res.write(`data: ${JSON.stringify({ done: true })}\n\n`);

@@ -80,8 +80,9 @@ router.post("/", async (req, res, next) => {
         else {
             return next((0, errorHandler_1.createError)("Must provide sourceReadingId or sourceBriefId", 400));
         }
+        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const messages = (0, prompts_1.flashcardGenerator)(sourceText, course, cardCount);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, { temperature: 0.7, maxTokens: 2048 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.7, maxTokens: 2048 });
         let result;
         try {
             result = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
