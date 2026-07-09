@@ -109,7 +109,7 @@ export function Sidebar({ onRequestChangeKey, onOpenSearch }: SidebarProps) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-red-900/30 text-red-300 border border-red-800/50"
+                      ? "bg-ttu-500/20 text-white border border-ttu-500"
                       : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/60"
                   }`
                 }

@@ -66,7 +66,7 @@ function CourseView({ course }: { course: CourseChapter }) {
     <div className="space-y-6">
       <div>
         <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border bg-cyan-900/40 text-cyan-300 border-cyan-800">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border bg-black text-white border-ttu-700">
             {course.year}
           </span>
           {course.courseCode && (
@@ -94,10 +94,10 @@ function CourseView({ course }: { course: CourseChapter }) {
 
       {course.landmarkCases.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-law-400 uppercase tracking-wide mb-3">Landmark Cases</h2>
+          <h2 className="text-sm font-semibold text-ttu-400 uppercase tracking-wide mb-3">Landmark Cases</h2>
           <div className="space-y-3">
             {course.landmarkCases.map((c) => (
-              <div key={c.name} className="border-l-2 border-law-800/60 pl-4 py-0.5">
+              <div key={c.name} className="border-l-2 border-ttu-800/60 pl-4 py-0.5">
                 <p className="font-semibold text-gray-100 text-sm">{c.name}</p>
                 <p className="text-sm text-gray-400 leading-relaxed mt-0.5">{c.note}</p>
               </div>
@@ -110,8 +110,8 @@ function CourseView({ course }: { course: CourseChapter }) {
       <SectionList title="Common Challenges" items={course.commonChallenges} />
       <SectionList title="Recommended Resources" items={course.resources} />
 
-      <div className="bg-law-900/20 border border-law-800/40 rounded-xl p-5">
-        <h2 className="text-xs font-semibold text-law-400 uppercase tracking-wide mb-2">Quick Review</h2>
+      <div className="bg-ttu-900/20 border border-ttu-800/40 rounded-xl p-5">
+        <h2 className="text-xs font-semibold text-ttu-400 uppercase tracking-wide mb-2">Quick Review</h2>
         <p className="text-sm text-gray-200 leading-relaxed">{course.summary}</p>
       </div>
     </div>
@@ -121,7 +121,7 @@ function CourseView({ course }: { course: CourseChapter }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold text-law-400 uppercase tracking-wide mb-2">{title}</h2>
+      <h2 className="text-sm font-semibold text-ttu-400 uppercase tracking-wide mb-2">{title}</h2>
       <p className="text-sm text-gray-300 leading-relaxed">{children}</p>
     </div>
   );
@@ -131,11 +131,11 @@ function SectionList({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <div>
-      <h2 className="text-sm font-semibold text-law-400 uppercase tracking-wide mb-2">{title}</h2>
+      <h2 className="text-sm font-semibold text-ttu-400 uppercase tracking-wide mb-2">{title}</h2>
       <ul className="space-y-1.5">
         {items.map((item, i) => (
           <li key={i} className="flex gap-2.5 text-sm text-gray-300 leading-relaxed">
-            <span className="text-law-500 mt-1.5 shrink-0">•</span>
+            <span className="text-ttu-500 mt-1.5 shrink-0">•</span>
             <span>{item}</span>
           </li>
         ))}
@@ -155,7 +155,7 @@ function InfoView({ section }: { section: InfoSection }) {
         <ul className="space-y-1.5">
           {section.bullets.map((b, i) => (
             <li key={i} className="flex gap-2.5 text-sm text-gray-300 leading-relaxed">
-              <span className="text-law-500 mt-1.5 shrink-0">•</span>
+              <span className="text-ttu-500 mt-1.5 shrink-0">•</span>
               <span>{b}</span>
             </li>
           ))}
@@ -171,7 +171,7 @@ function ResourceView({ category }: { category: ResourceCategory }) {
       <h1 className="text-2xl font-bold text-gray-100">{category.title}</h1>
       <div className="space-y-3">
         {category.items.map((item) => (
-          <div key={item.name} className="border-l-2 border-law-800/60 pl-4 py-0.5">
+          <div key={item.name} className="border-l-2 border-ttu-800/60 pl-4 py-0.5">
             <p className="font-semibold text-gray-100 text-sm">{item.name}</p>
             <p className="text-sm text-gray-400 leading-relaxed mt-0.5">{item.note}</p>
           </div>
@@ -188,7 +188,7 @@ function GlossaryView() {
       <div className="grid sm:grid-cols-2 gap-4">
         {LEGAL_GLOSSARY.map((g) => (
           <div key={g.term} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="font-semibold text-law-300 text-sm">{g.term}</p>
+            <p className="font-semibold text-white text-sm">{g.term}</p>
             <p className="text-sm text-gray-400 leading-relaxed mt-1">{g.definition}</p>
           </div>
         ))}
@@ -204,7 +204,7 @@ function LatinView() {
       <div className="grid sm:grid-cols-2 gap-4">
         {LATIN_TERMS.map((t) => (
           <div key={t.term} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="font-semibold text-law-300 text-sm italic">{t.term}</p>
+            <p className="font-semibold text-white text-sm italic">{t.term}</p>
             <p className="text-sm text-gray-400 leading-relaxed mt-1">{t.meaning}</p>
           </div>
         ))}
@@ -220,7 +220,7 @@ function TemplateView({ title, sections }: { title: string; sections: { label: s
       <div className="space-y-4">
         {sections.map((s, i) => (
           <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-xs font-semibold text-law-400 uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-ttu-400 uppercase tracking-wide mb-1">
               {i + 1}. {s.label}
             </p>
             <p className="text-sm text-gray-400 leading-relaxed">{s.prompt}</p>
@@ -234,13 +234,13 @@ function TemplateView({ title, sections }: { title: string; sections: { label: s
 function WelcomeView({ onNavigate }: { onNavigate: (id: string) => void }) {
   return (
     <div className="space-y-8">
-      <div className="bg-gradient-to-br from-law-900/40 to-gray-900 border border-law-800/40 rounded-2xl p-8">
+      <div className="bg-gradient-to-br from-ttu-900/40 to-gray-900 border border-ttu-800/40 rounded-2xl p-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 bg-law-700/30 border border-law-700/50 rounded-xl">
-            <GraduationCap className="text-law-300" size={26} />
+          <div className="p-2.5 bg-ttu-500/20 border border-ttu-500 rounded-xl">
+            <GraduationCap className="text-white" size={26} />
           </div>
           <div>
-            <p className="text-xs text-law-400 uppercase tracking-widest font-semibold">Prepared for Zackary MacMillin</p>
+            <p className="text-xs text-ttu-400 uppercase tracking-widest font-semibold">Prepared for Zackary MacMillan</p>
             <h1 className="text-2xl font-bold text-gray-100">Texas Tech School of Law Success Guide</h1>
           </div>
         </div>
@@ -256,33 +256,33 @@ function WelcomeView({ onNavigate }: { onNavigate: (id: string) => void }) {
       <div className="grid sm:grid-cols-2 gap-4">
         <button
           onClick={() => onNavigate("ttu-overview")}
-          className="text-left bg-gray-900 border border-gray-800 hover:border-law-700 rounded-xl p-5 transition-colors"
+          className="text-left bg-gray-900 border border-gray-800 hover:border-ttu-700 rounded-xl p-5 transition-colors"
         >
-          <Landmark className="text-law-400 mb-2" size={20} />
+          <Landmark className="text-ttu-400 mb-2" size={20} />
           <p className="font-semibold text-gray-100 text-sm">Part I — Before You Start</p>
           <p className="text-xs text-gray-500 mt-1">TTU overview, curriculum structure, how law school works</p>
         </button>
         <button
           onClick={() => onNavigate(FIRST_YEAR_COURSES[0].id)}
-          className="text-left bg-gray-900 border border-gray-800 hover:border-law-700 rounded-xl p-5 transition-colors"
+          className="text-left bg-gray-900 border border-gray-800 hover:border-ttu-700 rounded-xl p-5 transition-colors"
         >
-          <BookOpen className="text-law-400 mb-2" size={20} />
+          <BookOpen className="text-ttu-400 mb-2" size={20} />
           <p className="font-semibold text-gray-100 text-sm">Part II — Required Courses</p>
           <p className="text-xs text-gray-500 mt-1">Every 1L and upper-level required course, same format every time</p>
         </button>
         <button
           onClick={() => onNavigate("clinics")}
-          className="text-left bg-gray-900 border border-gray-800 hover:border-law-700 rounded-xl p-5 transition-colors"
+          className="text-left bg-gray-900 border border-gray-800 hover:border-ttu-700 rounded-xl p-5 transition-colors"
         >
-          <Scale className="text-law-400 mb-2" size={20} />
+          <Scale className="text-ttu-400 mb-2" size={20} />
           <p className="font-semibold text-gray-100 text-sm">Part III — TTU Opportunities</p>
           <p className="text-xs text-gray-500 mt-1">Clinics, Board of Barristers, Law Review, Career Services</p>
         </button>
         <button
           onClick={() => onNavigate("glossary")}
-          className="text-left bg-gray-900 border border-gray-800 hover:border-law-700 rounded-xl p-5 transition-colors"
+          className="text-left bg-gray-900 border border-gray-800 hover:border-ttu-700 rounded-xl p-5 transition-colors"
         >
-          <Library className="text-law-400 mb-2" size={20} />
+          <Library className="text-ttu-400 mb-2" size={20} />
           <p className="font-semibold text-gray-100 text-sm">Part V — Appendices</p>
           <p className="text-xs text-gray-500 mt-1">Glossary, Latin terms, case brief and IRAC templates</p>
         </button>
@@ -326,7 +326,7 @@ export function TexasTech() {
               onClick={() => setActiveId("welcome")}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                 activeId === "welcome"
-                  ? "bg-law-700/30 text-law-300 border border-law-700/50"
+                  ? "bg-ttu-500/20 text-white border border-ttu-500"
                   : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/60"
               }`}
             >
@@ -346,7 +346,7 @@ export function TexasTech() {
                       onClick={() => setActiveId(item.id)}
                       className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-left transition-all ${
                         activeId === item.id
-                          ? "bg-law-700/30 text-law-300 border border-law-700/50"
+                          ? "bg-ttu-500/20 text-white border border-ttu-500"
                           : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/60"
                       }`}
                     >
