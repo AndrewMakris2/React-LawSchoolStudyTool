@@ -38,7 +38,7 @@ router.post("/", async (req, res, next) => {
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
         const { cardId, grade } = parsed.data;
-        const card = await (0, storage_1.getFlashcard)(cardId);
+        const card = await (0, storage_1.getFlashcard)(cardId, req.userId);
         if (!card)
             return next((0, errorHandler_1.createError)("Card not found", 404));
         const updated = scheduleCard(card, grade);

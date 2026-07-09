@@ -16,6 +16,7 @@ export interface ChatMessage {
 
 export interface Reading {
   id: string;
+  userId: string;
   title: string;
   course: CourseTag;
   content: string;
@@ -25,6 +26,7 @@ export interface Reading {
 
 export interface CaseBrief {
   id: string;
+  userId: string;
   readingId: string;
   title: string;
   course: CourseTag;
@@ -44,6 +46,7 @@ export type PolishStyle = "concise" | "standard" | "verbose";
 
 export interface Flashcard {
   id: string;
+  userId: string;
   deckId: string;
   front: string;
   back: string;
@@ -57,6 +60,7 @@ export interface Flashcard {
 
 export interface FlashcardDeck {
   id: string;
+  userId: string;
   name: string;
   course: CourseTag;
   sourceReadingId?: string;
@@ -69,6 +73,7 @@ export type Grade = "again" | "hard" | "good" | "easy";
 
 export interface DrillAttempt {
   id: string;
+  userId: string;
   course: CourseTag;
   difficulty: "easy" | "medium" | "hard";
   prompt: string;
@@ -108,6 +113,7 @@ export interface ExamQuestion {
 
 export interface ExamAttempt {
   id: string;
+  userId: string;
   course: CourseTag;
   difficulty: "easy" | "medium" | "hard";
   questions: ExamQuestion[];
@@ -131,6 +137,7 @@ export interface ExamQuestionFeedback {
 
 export interface GlossaryEntry {
   id: string;
+  userId: string;
   term: string;
   definition: string;
   example?: string;
@@ -155,6 +162,7 @@ export interface OutlineTopic {
 
 export interface CourseOutline {
   id: string;
+  userId: string;
   course: CourseTag;
   title: string;
   topics: OutlineTopic[];

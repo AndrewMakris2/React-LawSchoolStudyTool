@@ -18,6 +18,7 @@ const exam_1 = __importDefault(require("./routes/exam"));
 const outline_1 = __importDefault(require("./routes/outline"));
 const glossary_1 = __importDefault(require("./routes/glossary"));
 const storage_1 = require("./lib/storage");
+const auth_1 = require("./middleware/auth");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 // Allow all Vercel/Netlify preview URLs + localhost
@@ -41,16 +42,16 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 app.use(express_1.default.json({ limit: "2mb" }));
-app.use("/api/readings", readings_1.default);
-app.use("/api/chat", chat_1.default);
-app.use("/api/brief", brief_1.default);
-app.use("/api/rule-polish", rulePolish_1.default);
-app.use("/api/issue-spotter", issueSpotter_1.default);
-app.use("/api/flashcards", flashcards_1.default);
-app.use("/api/review", review_1.default);
-app.use("/api/exam", exam_1.default);
-app.use("/api/outline", outline_1.default);
-app.use("/api/glossary", glossary_1.default);
+app.use("/api/readings", auth_1.requireAuth, readings_1.default);
+app.use("/api/chat", auth_1.requireAuth, chat_1.default);
+app.use("/api/brief", auth_1.requireAuth, brief_1.default);
+app.use("/api/rule-polish", auth_1.requireAuth, rulePolish_1.default);
+app.use("/api/issue-spotter", auth_1.requireAuth, issueSpotter_1.default);
+app.use("/api/flashcards", auth_1.requireAuth, flashcards_1.default);
+app.use("/api/review", auth_1.requireAuth, review_1.default);
+app.use("/api/exam", auth_1.requireAuth, exam_1.default);
+app.use("/api/outline", auth_1.requireAuth, outline_1.default);
+app.use("/api/glossary", auth_1.requireAuth, glossary_1.default);
 app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", model: process.env.GROQ_MODEL });
 });

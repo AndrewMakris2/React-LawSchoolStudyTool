@@ -14,12 +14,6 @@ function createGroqClient(apiKey: string): OpenAI {
   });
 }
 
-export function resolveApiKey(headerKey?: string): string {
-  const key = headerKey || process.env.GROQ_API_KEY;
-  if (!key) throw Object.assign(new Error("No Groq API key provided. Set your key in the app settings."), { statusCode: 401 });
-  return key;
-}
-
 export async function chatCompletion(
   messages: ChatMessage[],
   apiKey: string,

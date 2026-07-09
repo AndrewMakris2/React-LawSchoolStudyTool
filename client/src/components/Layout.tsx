@@ -4,10 +4,10 @@ import { Sidebar } from "./Sidebar";
 import { CommandPalette } from "./CommandPalette";
 
 interface LayoutProps {
-  onClearKey?: () => void;
+  onRequestChangeKey?: () => void;
 }
 
-export function Layout({ onClearKey }: LayoutProps) {
+export function Layout({ onRequestChangeKey }: LayoutProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function Layout({ onClearKey }: LayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-gray-950">
-      <Sidebar onClearKey={onClearKey} onOpenSearch={() => setPaletteOpen(true)} />
+      <Sidebar onRequestChangeKey={onRequestChangeKey} onOpenSearch={() => setPaletteOpen(true)} />
       <main className="flex-1 overflow-auto">
         <Outlet />
       </main>

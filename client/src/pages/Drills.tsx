@@ -12,6 +12,17 @@ const COURSES: CourseTag[] = [
 
 type Phase = "configure" | "writing" | "results";
 
+// Defensive fallback: the model occasionally bundles all suggestions into one
+// numbered string instead of separate array items. Split it back apart when detected.
+function splitSuggestions(suggestions: string[]): string[] {
+  if (suggestions.length !== 1) return suggestions;
+  const parts = suggestions[0]
+    .split(/(?:^|\s)\d+[.)]\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length > 1 ? parts : suggestions;
+}
+
 export function Drills() {
   const [phase, setPhase]           = useState<Phase>("configure");
   const [course, setCourse]         = useState<CourseTag>("Torts");
@@ -319,7 +330,7 @@ export function Drills() {
               3 Concrete Improvements
             </h3>
             <ol className="space-y-2">
-              {result.suggestions.map((s, i) => (
+              {splitSuggestions(result.suggestions).map((s, i) => (
                 <li key={i} className="flex gap-3 text-sm text-gray-300">
                   <span className="text-law-400 font-bold shrink-0">{i + 1}.</span>
                   <span className="leading-relaxed">{s}</span>

@@ -48,83 +48,91 @@ async function writeFile<T>(filePath: string, data: T[]): Promise<void> {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2));
 }
 
+// Every entity is stored in one flat JSON file shared by all users. Reads are
+// filtered down to the caller's userId; writes always operate on the FULL
+// unfiltered dataset (read raw, splice/filter just the caller's row, write
+// the whole file back) so one user's save/delete never clobbers another
+// user's rows sitting in the same file.
+
 // ── Readings ──────────────────────────────────────────────────────────────────
-export async function getReadings(): Promise<Reading[]> {
-  return readFile<Reading>(FILES.readings);
+export async function getReadings(userId: string): Promise<Reading[]> {
+  return (await readFile<Reading>(FILES.readings)).filter((r) => r.userId === userId);
 }
-export async function getReading(id: string): Promise<Reading | undefined> {
-  return (await getReadings()).find((r) => r.id === id);
+export async function getReading(id: string, userId: string): Promise<Reading | undefined> {
+  return (await getReadings(userId)).find((r) => r.id === id);
 }
 export async function saveReading(reading: Reading): Promise<void> {
-  const all = await getReadings();
-  const idx = all.findIndex((r) => r.id === reading.id);
+  const all = await readFile<Reading>(FILES.readings);
+  const idx = all.findIndex((r) => r.id === reading.id && r.userId === reading.userId);
   if (idx === -1) all.push(reading);
   else all[idx] = reading;
   await writeFile(FILES.readings, all);
 }
-export async function deleteReading(id: string): Promise<void> {
-  const all = await getReadings();
-  await writeFile(FILES.readings, all.filter((r) => r.id !== id));
+export async function deleteReading(id: string, userId: string): Promise<void> {
+  const all = await readFile<Reading>(FILES.readings);
+  await writeFile(FILES.readings, all.filter((r) => !(r.id === id && r.userId === userId)));
 }
 
 // ── Briefs ────────────────────────────────────────────────────────────────────
-export async function getBriefs(): Promise<CaseBrief[]> {
-  return readFile<CaseBrief>(FILES.briefs);
+export async function getBriefs(userId: string): Promise<CaseBrief[]> {
+  return (await readFile<CaseBrief>(FILES.briefs)).filter((b) => b.userId === userId);
 }
-export async function getBrief(id: string): Promise<CaseBrief | undefined> {
-  return (await getBriefs()).find((b) => b.id === id);
+export async function getBrief(id: string, userId: string): Promise<CaseBrief | undefined> {
+  return (await getBriefs(userId)).find((b) => b.id === id);
 }
-export async function getBriefByReadingId(readingId: string): Promise<CaseBrief | undefined> {
-  return (await getBriefs()).find((b) => b.readingId === readingId);
+export async function getBriefByReadingId(readingId: string, userId: string): Promise<CaseBrief | undefined> {
+  return (await getBriefs(userId)).find((b) => b.readingId === readingId);
 }
 export async function saveBrief(brief: CaseBrief): Promise<void> {
-  const all = await getBriefs();
-  const idx = all.findIndex((b) => b.id === brief.id);
+  const all = await readFile<CaseBrief>(FILES.briefs);
+  const idx = all.findIndex((b) => b.id === brief.id && b.userId === brief.userId);
   if (idx === -1) all.push(brief);
   else all[idx] = brief;
   await writeFile(FILES.briefs, all);
 }
 
 // ── Decks ─────────────────────────────────────────────────────────────────────
-export async function getDecks(): Promise<FlashcardDeck[]> {
-  return readFile<FlashcardDeck>(FILES.decks);
+export async function getDecks(userId: string): Promise<FlashcardDeck[]> {
+  return (await readFile<FlashcardDeck>(FILES.decks)).filter((d) => d.userId === userId);
 }
-export async function getDeck(id: string): Promise<FlashcardDeck | undefined> {
-  return (await getDecks()).find((d) => d.id === id);
+export async function getDeck(id: string, userId: string): Promise<FlashcardDeck | undefined> {
+  return (await getDecks(userId)).find((d) => d.id === id);
 }
 export async function saveDeck(deck: FlashcardDeck): Promise<void> {
-  const all = await getDecks();
-  const idx = all.findIndex((d) => d.id === deck.id);
+  const all = await readFile<FlashcardDeck>(FILES.decks);
+  const idx = all.findIndex((d) => d.id === deck.id && d.userId === deck.userId);
   if (idx === -1) all.push(deck);
   else all[idx] = deck;
   await writeFile(FILES.decks, all);
 }
-export async function deleteDeck(id: string): Promise<void> {
-  await writeFile(FILES.decks, (await getDecks()).filter((d) => d.id !== id));
-  await writeFile(FILES.flashcards, (await getFlashcards()).filter((c) => c.deckId !== id));
+export async function deleteDeck(id: string, userId: string): Promise<void> {
+  const allDecks = await readFile<FlashcardDeck>(FILES.decks);
+  await writeFile(FILES.decks, allDecks.filter((d) => !(d.id === id && d.userId === userId)));
+  const allCards = await readFile<Flashcard>(FILES.flashcards);
+  await writeFile(FILES.flashcards, allCards.filter((c) => !(c.deckId === id && c.userId === userId)));
 }
 
 // ── Flashcards ────────────────────────────────────────────────────────────────
-export async function getFlashcards(): Promise<Flashcard[]> {
-  return readFile<Flashcard>(FILES.flashcards);
+export async function getFlashcards(userId: string): Promise<Flashcard[]> {
+  return (await readFile<Flashcard>(FILES.flashcards)).filter((c) => c.userId === userId);
 }
-export async function getFlashcardsByDeck(deckId: string): Promise<Flashcard[]> {
-  return (await getFlashcards()).filter((c) => c.deckId === deckId);
+export async function getFlashcardsByDeck(deckId: string, userId: string): Promise<Flashcard[]> {
+  return (await getFlashcards(userId)).filter((c) => c.deckId === deckId);
 }
-export async function getFlashcard(id: string): Promise<Flashcard | undefined> {
-  return (await getFlashcards()).find((c) => c.id === id);
+export async function getFlashcard(id: string, userId: string): Promise<Flashcard | undefined> {
+  return (await getFlashcards(userId)).find((c) => c.id === id);
 }
 export async function saveFlashcard(card: Flashcard): Promise<void> {
-  const all = await getFlashcards();
-  const idx = all.findIndex((c) => c.id === card.id);
+  const all = await readFile<Flashcard>(FILES.flashcards);
+  const idx = all.findIndex((c) => c.id === card.id && c.userId === card.userId);
   if (idx === -1) all.push(card);
   else all[idx] = card;
   await writeFile(FILES.flashcards, all);
 }
 export async function saveFlashcards(cards: Flashcard[]): Promise<void> {
-  const all = await getFlashcards();
+  const all = await readFile<Flashcard>(FILES.flashcards);
   for (const card of cards) {
-    const idx = all.findIndex((c) => c.id === card.id);
+    const idx = all.findIndex((c) => c.id === card.id && c.userId === card.userId);
     if (idx === -1) all.push(card);
     else all[idx] = card;
   }
@@ -132,65 +140,72 @@ export async function saveFlashcards(cards: Flashcard[]): Promise<void> {
 }
 
 // ── Drills ────────────────────────────────────────────────────────────────────
-export async function getDrillAttempts(): Promise<DrillAttempt[]> {
-  return readFile<DrillAttempt>(FILES.drills);
+export async function getDrillAttempts(userId: string): Promise<DrillAttempt[]> {
+  return (await readFile<DrillAttempt>(FILES.drills)).filter((a) => a.userId === userId);
 }
 export async function saveDrillAttempt(attempt: DrillAttempt): Promise<void> {
-  const all = await getDrillAttempts();
+  const all = await readFile<DrillAttempt>(FILES.drills);
   all.push(attempt);
   await writeFile(FILES.drills, all);
 }
 
 // ── Exams ─────────────────────────────────────────────────────────────────────
-export async function getExamAttempts(): Promise<ExamAttempt[]> {
-  return readFile<ExamAttempt>(FILES.exams);
+export async function getExamAttempts(userId: string): Promise<ExamAttempt[]> {
+  return (await readFile<ExamAttempt>(FILES.exams)).filter((a) => a.userId === userId);
 }
 export async function saveExamAttempt(attempt: ExamAttempt): Promise<void> {
-  const all = await getExamAttempts();
+  const all = await readFile<ExamAttempt>(FILES.exams);
   all.push(attempt);
   await writeFile(FILES.exams, all);
 }
 
 // ── Glossary ──────────────────────────────────────────────────────────────────
-export async function getGlossaryEntries(): Promise<GlossaryEntry[]> {
-  return readFile<GlossaryEntry>(FILES.glossary);
+export async function getGlossaryEntries(userId: string): Promise<GlossaryEntry[]> {
+  return (await readFile<GlossaryEntry>(FILES.glossary)).filter((e) => e.userId === userId);
 }
 export async function saveGlossaryEntries(entries: GlossaryEntry[]): Promise<void> {
-  const all = await getGlossaryEntries();
+  const all = await readFile<GlossaryEntry>(FILES.glossary);
   for (const entry of entries) {
-    const idx = all.findIndex((e) => e.id === entry.id);
+    const idx = all.findIndex((e) => e.id === entry.id && e.userId === entry.userId);
     if (idx === -1) all.push(entry);
     else all[idx] = entry;
   }
   await writeFile(FILES.glossary, all);
 }
-export async function deleteGlossaryEntry(id: string): Promise<void> {
-  await writeFile(FILES.glossary, (await getGlossaryEntries()).filter((e) => e.id !== id));
+export async function deleteGlossaryEntry(id: string, userId: string): Promise<void> {
+  const all = await readFile<GlossaryEntry>(FILES.glossary);
+  await writeFile(FILES.glossary, all.filter((e) => !(e.id === id && e.userId === userId)));
 }
 
 // ── Outlines ──────────────────────────────────────────────────────────────────
-export async function getOutlines(): Promise<CourseOutline[]> {
-  return readFile<CourseOutline>(FILES.outlines);
+export async function getOutlines(userId: string): Promise<CourseOutline[]> {
+  return (await readFile<CourseOutline>(FILES.outlines)).filter((o) => o.userId === userId);
 }
 export async function saveOutline(outline: CourseOutline): Promise<void> {
-  const all = await getOutlines();
-  const idx = all.findIndex((o) => o.id === outline.id);
+  const all = await readFile<CourseOutline>(FILES.outlines);
+  const idx = all.findIndex((o) => o.id === outline.id && o.userId === outline.userId);
   if (idx === -1) all.push(outline);
   else all[idx] = outline;
   await writeFile(FILES.outlines, all);
 }
-export async function deleteOutline(id: string): Promise<void> {
-  await writeFile(FILES.outlines, (await getOutlines()).filter((o) => o.id !== id));
+export async function deleteOutline(id: string, userId: string): Promise<void> {
+  const all = await readFile<CourseOutline>(FILES.outlines);
+  await writeFile(FILES.outlines, all.filter((o) => !(o.id === id && o.userId === userId)));
 }
 
 // ── Seed ──────────────────────────────────────────────────────────────────────
+// Seed data is owned by the "local-dev" user (the dev-mode fallback identity)
+// so it's visible during local development but not attributed to any real visitor.
+const SEED_USER_ID = "local-dev";
+
 async function seedDemoData(): Promise<void> {
-  const readings = await getReadings();
+  const readings = await readFile<Reading>(FILES.readings);
   if (readings.length > 0) return;
 
   const seed: Reading[] = [
     {
       id: "seed-reading-1",
+      userId: SEED_USER_ID,
       title: "Palsgraf v. Long Island Railroad Co.",
       course: "Torts",
       dateAdded: new Date().toISOString(),
@@ -219,6 +234,7 @@ Reversed. Judgment for defendant railroad.`,
     },
     {
       id: "seed-reading-2",
+      userId: SEED_USER_ID,
       title: "Hadley v. Baxendale",
       course: "Contracts",
       dateAdded: new Date().toISOString(),
@@ -248,5 +264,5 @@ New trial ordered; lost profits damages were improperly awarded.`,
   ];
 
   for (const r of seed) await saveReading(r);
-  console.log("🌱 Seeded demo readings (Palsgraf + Hadley v. Baxendale)");
+  console.log("🌱 Seeded demo readings (Palsgraf + Hadley v. Baxendale) for local-dev user");
 }

@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
-import { chatCompletion, resolveApiKey } from "../lib/groqClient";
+import { chatCompletion } from "../lib/groqClient";
 import { flashcardGenerator } from "../lib/prompts";
 import { getDecks, getDeck, saveDeck, deleteDeck, getFlashcardsByDeck, saveFlashcards, getReading, getBrief } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
@@ -23,6 +23,7 @@ const GenerateSchema = z.object({
 });
 
 function initialCard(
+  userId: string,
   deckId: string,
   front: string,
   back: string,
@@ -30,6 +31,7 @@ function initialCard(
 ): Flashcard {
   return {
     id:          uuid(),
+    userId,
     deckId,
     front,
     back,
@@ -42,17 +44,17 @@ function initialCard(
   };
 }
 
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(await getDecks());
+    res.json(await getDecks(req.userId));
   } catch (err) { next(err); }
 });
 
 router.get("/:deckId/cards", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deck = await getDeck(req.params.deckId);
+    const deck = await getDeck(req.params.deckId, req.userId);
     if (!deck) return next(createError("Deck not found", 404));
-    res.json(await getFlashcardsByDeck(req.params.deckId));
+    res.json(await getFlashcardsByDeck(req.params.deckId, req.userId));
   } catch (err) { next(err); }
 });
 
@@ -65,11 +67,11 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     let sourceText = "";
     if (sourceReadingId) {
-      const reading = await getReading(sourceReadingId);
+      const reading = await getReading(sourceReadingId, req.userId);
       if (!reading) return next(createError("Reading not found", 404));
       sourceText = reading.content;
     } else if (sourceBriefId) {
-      const brief = await getBrief(sourceBriefId);
+      const brief = await getBrief(sourceBriefId, req.userId);
       if (!brief) return next(createError("Brief not found", 404));
       sourceText = [
         `FACTS: ${brief.facts}`,
@@ -82,9 +84,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       return next(createError("Must provide sourceReadingId or sourceBriefId", 400));
     }
 
-    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const messages = flashcardGenerator(sourceText, course, cardCount);
-    const raw = await chatCompletion(messages, apiKey, { temperature: 0.7, maxTokens: 2048 });
+    const raw = await chatCompletion(messages, req.apiKey, { temperature: 0.7, maxTokens: 2048 });
 
     let result;
     try {
@@ -97,6 +98,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const now = new Date().toISOString();
     const deck: FlashcardDeck = {
       id:              uuid(),
+      userId:          req.userId,
       name,
       course,
       sourceReadingId,
@@ -107,7 +109,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const cards: Flashcard[] = (
       result.cards as { front: string; back: string; hypo?: string }[]
-    ).map((c) => initialCard(deck.id, c.front, c.back, c.hypo));
+    ).map((c) => initialCard(req.userId, deck.id, c.front, c.back, c.hypo));
 
     await saveDeck(deck);
     await saveFlashcards(cards);
@@ -117,9 +119,9 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
 router.delete("/:deckId", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const deck = await getDeck(req.params.deckId);
+    const deck = await getDeck(req.params.deckId, req.userId);
     if (!deck) return next(createError("Deck not found", 404));
-    await deleteDeck(req.params.deckId);
+    await deleteDeck(req.params.deckId, req.userId);
     res.json({ success: true });
   } catch (err) { next(err); }
 });

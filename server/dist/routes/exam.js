@@ -36,10 +36,9 @@ router.post("/generate", async (req, res, next) => {
         const parsed = GenerateSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { course, difficulty, questionCount } = parsed.data;
         const messages = (0, prompts_1.practiceExamGenerator)(course, difficulty, questionCount);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.8, maxTokens: 3000 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.8, maxTokens: 3000 });
         let result;
         try {
             result = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -59,7 +58,6 @@ router.post("/submit", async (req, res, next) => {
         const parsed = SubmitSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { course, difficulty, questions, answers, timeSpentSeconds } = parsed.data;
         const feedback = [];
         let totalScore = 0;
@@ -93,7 +91,7 @@ router.post("/submit", async (req, res, next) => {
                     continue;
                 }
                 const gradeMessages = (0, prompts_1.practiceExamEssayGrader)(course, q, answer);
-                const gradeRaw = await (0, groqClient_1.chatCompletion)(gradeMessages, apiKey, { temperature: 0.2, maxTokens: 512 });
+                const gradeRaw = await (0, groqClient_1.chatCompletion)(gradeMessages, req.apiKey, { temperature: 0.2, maxTokens: 512 });
                 let graded;
                 try {
                     graded = JSON.parse((0, sanitizeJson_1.sanitizeJson)(gradeRaw));
@@ -113,6 +111,7 @@ router.post("/submit", async (req, res, next) => {
         }
         const attempt = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             course,
             difficulty,
             questions: questions,
@@ -130,9 +129,9 @@ router.post("/submit", async (req, res, next) => {
         next(err);
     }
 });
-router.get("/history", async (_req, res, next) => {
+router.get("/history", async (req, res, next) => {
     try {
-        res.json(await (0, storage_1.getExamAttempts)());
+        res.json(await (0, storage_1.getExamAttempts)(req.userId));
     }
     catch (err) {
         next(err);

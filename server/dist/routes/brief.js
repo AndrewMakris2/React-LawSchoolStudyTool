@@ -20,9 +20,9 @@ const UpdateBriefSchema = zod_1.z.object({
     disposition: zod_1.z.string().optional(),
     notes: zod_1.z.string().optional(),
 });
-router.get("/", async (_req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        res.json(await (0, storage_1.getBriefs)());
+        res.json(await (0, storage_1.getBriefs)(req.userId));
     }
     catch (err) {
         next(err);
@@ -30,7 +30,7 @@ router.get("/", async (_req, res, next) => {
 });
 router.get("/:id", async (req, res, next) => {
     try {
-        const brief = await (0, storage_1.getBrief)(req.params.id);
+        const brief = await (0, storage_1.getBrief)(req.params.id, req.userId);
         if (!brief)
             return next((0, errorHandler_1.createError)("Brief not found", 404));
         res.json(brief);
@@ -44,12 +44,11 @@ router.post("/", async (req, res, next) => {
         const parsed = GenerateBriefSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const reading = await (0, storage_1.getReading)(parsed.data.readingId);
+        const reading = await (0, storage_1.getReading)(parsed.data.readingId, req.userId);
         if (!reading)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const messages = (0, prompts_1.briefBuilder)(reading.content, reading.title);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.3, maxTokens: 2048 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.3, maxTokens: 2048 });
         let parsedBrief;
         try {
             parsedBrief = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -61,6 +60,7 @@ router.post("/", async (req, res, next) => {
         const now = new Date().toISOString();
         const brief = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             readingId: reading.id,
             title: reading.title,
             course: reading.course,
@@ -85,7 +85,7 @@ router.post("/", async (req, res, next) => {
 });
 router.put("/:id", async (req, res, next) => {
     try {
-        const existing = await (0, storage_1.getBrief)(req.params.id);
+        const existing = await (0, storage_1.getBrief)(req.params.id, req.userId);
         if (!existing)
             return next((0, errorHandler_1.createError)("Brief not found", 404));
         const parsed = UpdateBriefSchema.safeParse(req.body);

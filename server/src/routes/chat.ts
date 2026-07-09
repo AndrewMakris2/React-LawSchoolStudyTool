@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { getReading } from "../lib/storage";
-import { streamChatCompletion, resolveApiKey } from "../lib/groqClient";
+import { streamChatCompletion } from "../lib/groqClient";
 import { socraticTutor } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { ChatMessage } from "../types";
@@ -28,7 +28,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const { readingId, messages, coldCallMode, strictMode, hintRequested } = parsed.data;
 
-    const reading = await getReading(readingId);
+    const reading = await getReading(readingId, req.userId);
     if (!reading) return next(createError("Reading not found", 404));
 
     const typedMessages = messages as ChatMessage[];
@@ -39,8 +39,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       hint: hintRequested,
     });
 
-    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
-
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -48,7 +46,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     await streamChatCompletion(
       fullMessages,
-      apiKey,
+      req.apiKey,
       (chunk) => {
         res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
       },

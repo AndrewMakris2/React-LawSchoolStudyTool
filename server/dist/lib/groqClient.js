@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolveApiKey = resolveApiKey;
 exports.chatCompletion = chatCompletion;
 exports.streamChatCompletion = streamChatCompletion;
 const openai_1 = __importDefault(require("openai"));
@@ -16,12 +15,6 @@ function createGroqClient(apiKey) {
         apiKey,
         baseURL: "https://api.groq.com/openai/v1",
     });
-}
-function resolveApiKey(headerKey) {
-    const key = headerKey || process.env.GROQ_API_KEY;
-    if (!key)
-        throw Object.assign(new Error("No Groq API key provided. Set your key in the app settings."), { statusCode: 401 });
-    return key;
 }
 async function chatCompletion(messages, apiKey, opts = {}) {
     const client = createGroqClient(apiKey);

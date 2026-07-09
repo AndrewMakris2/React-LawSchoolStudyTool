@@ -19,10 +19,9 @@ router.post("/", async (req, res, next) => {
         const parsed = RulePolishSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { userRule, style, course } = parsed.data;
         const messages = (0, prompts_1.rulePolisher)(userRule, style, course);
-        const result = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.4, maxTokens: 512 });
+        const result = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.4, maxTokens: 512 });
         res.json({ polished: result.trim() });
     }
     catch (err) {

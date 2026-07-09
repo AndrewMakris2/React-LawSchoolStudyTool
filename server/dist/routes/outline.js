@@ -17,9 +17,9 @@ const GenerateSchema = zod_1.z.object({
     readingIds: zod_1.z.array(zod_1.z.string()).min(1).max(5),
     title: zod_1.z.string().min(1).max(100).optional(),
 });
-router.get("/", async (_req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        res.json(await (0, storage_1.getOutlines)());
+        res.json(await (0, storage_1.getOutlines)(req.userId));
     }
     catch (err) {
         next(err);
@@ -30,9 +30,8 @@ router.post("/generate", async (req, res, next) => {
         const parsed = GenerateSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { course, readingIds, title } = parsed.data;
-        const allReadings = await (0, storage_1.getReadings)();
+        const allReadings = await (0, storage_1.getReadings)(req.userId);
         const selected = readingIds.map((id) => allReadings.find((r) => r.id === id)).filter(Boolean);
         if (selected.length === 0)
             return next((0, errorHandler_1.createError)("No valid readings found", 404));
@@ -40,7 +39,7 @@ router.post("/generate", async (req, res, next) => {
             .map((r) => `=== ${r.title} ===\n${r.content}`)
             .join("\n\n");
         const messages = (0, prompts_1.outlineBuilder)(course, combined);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.3, maxTokens: 3000 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.3, maxTokens: 3000 });
         let result;
         try {
             result = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -51,6 +50,7 @@ router.post("/generate", async (req, res, next) => {
         }
         const outline = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             course,
             title: title ?? `${course} Outline`,
             topics: result.topics ?? [],
@@ -66,7 +66,7 @@ router.post("/generate", async (req, res, next) => {
 });
 router.delete("/:id", async (req, res, next) => {
     try {
-        await (0, storage_1.deleteOutline)(req.params.id);
+        await (0, storage_1.deleteOutline)(req.params.id, req.userId);
         res.json({ success: true });
     }
     catch (err) {

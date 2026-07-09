@@ -21,9 +21,9 @@ const UpdateReadingSchema = zod_1.z.object({
     briefId: zod_1.z.string().optional(),
 });
 // GET /api/readings
-router.get("/", async (_req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        const readings = await (0, storage_1.getReadings)();
+        const readings = await (0, storage_1.getReadings)(req.userId);
         const list = readings.map(({ id, title, course, dateAdded, briefId }) => ({
             id, title, course, dateAdded, briefId,
         }));
@@ -36,7 +36,7 @@ router.get("/", async (_req, res, next) => {
 // GET /api/readings/:id
 router.get("/:id", async (req, res, next) => {
     try {
-        const reading = await (0, storage_1.getReading)(req.params.id);
+        const reading = await (0, storage_1.getReading)(req.params.id, req.userId);
         if (!reading)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
         res.json(reading);
@@ -53,6 +53,7 @@ router.post("/", async (req, res, next) => {
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
         const reading = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             title: parsed.data.title,
             course: parsed.data.course,
             content: parsed.data.content,
@@ -68,7 +69,7 @@ router.post("/", async (req, res, next) => {
 // PUT /api/readings/:id
 router.put("/:id", async (req, res, next) => {
     try {
-        const existing = await (0, storage_1.getReading)(req.params.id);
+        const existing = await (0, storage_1.getReading)(req.params.id, req.userId);
         if (!existing)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
         const parsed = UpdateReadingSchema.safeParse(req.body);
@@ -91,10 +92,10 @@ router.put("/:id", async (req, res, next) => {
 // DELETE /api/readings/:id
 router.delete("/:id", async (req, res, next) => {
     try {
-        const existing = await (0, storage_1.getReading)(req.params.id);
+        const existing = await (0, storage_1.getReading)(req.params.id, req.userId);
         if (!existing)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
-        await (0, storage_1.deleteReading)(req.params.id);
+        await (0, storage_1.deleteReading)(req.params.id, req.userId);
         res.json({ success: true });
     }
     catch (err) {

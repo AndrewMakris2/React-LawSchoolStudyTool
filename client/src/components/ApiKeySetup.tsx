@@ -1,16 +1,26 @@
-import React, { useState } from "react";
-import { KeyRound, ExternalLink, Eye, EyeOff, CheckCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { KeyRound, ExternalLink, Eye, EyeOff, CheckCircle, X } from "lucide-react";
 import { setApiKey } from "../api/client";
 
 interface ApiKeySetupProps {
   onSaved: () => void;
+  onCancel?: () => void;
 }
 
-export function ApiKeySetup({ onSaved }: ApiKeySetupProps) {
+export function ApiKeySetup({ onSaved, onCancel }: ApiKeySetupProps) {
   const [value, setValue] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!onCancel) return;
+    function handler(e: KeyboardEvent) {
+      if (e.key === "Escape") onCancel?.();
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onCancel]);
 
   function handleSave() {
     const trimmed = value.trim();
@@ -31,8 +41,21 @@ export function ApiKeySetup({ onSaved }: ApiKeySetupProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+    <div
+      className="fixed inset-0 bg-gray-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel?.(); }}
+    >
+      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 transition-colors"
+            aria-label="Cancel"
+          >
+            <X size={18} />
+          </button>
+        )}
+
         {/* Icon */}
         <div className="flex items-center justify-center mb-6">
           <div className="p-3 bg-law-700/30 border border-law-700/50 rounded-2xl">

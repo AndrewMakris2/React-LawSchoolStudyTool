@@ -12,26 +12,33 @@ import { Progress } from "./pages/Progress";
 import { Exam } from "./pages/Exam";
 import { Outline } from "./pages/Outline";
 import { Glossary } from "./pages/Glossary";
+import { TexasTech } from "./pages/TexasTech";
 import { getApiKey } from "./api/client";
 
 export default function App() {
   const [apiKeySet, setApiKeySet] = useState(() => !!getApiKey());
+  const [changingKey, setChangingKey] = useState(false);
 
   useEffect(() => {
     setApiKeySet(!!getApiKey());
   }, []);
 
+  const showKeyModal = !apiKeySet || changingKey;
+
   return (
     <BrowserRouter>
-      {!apiKeySet && (
-        <ApiKeySetup onSaved={() => setApiKeySet(true)} />
+      {showKeyModal && (
+        <ApiKeySetup
+          onSaved={() => { setApiKeySet(true); setChangingKey(false); }}
+          onCancel={apiKeySet ? () => setChangingKey(false) : undefined}
+        />
       )}
       <Routes>
         {/* Homepage — no sidebar */}
-        <Route index element={<Home onSetupKey={() => setApiKeySet(false)} />} />
+        <Route index element={<Home onSetupKey={() => setChangingKey(true)} />} />
 
         {/* App pages — with sidebar */}
-        <Route element={<Layout onClearKey={() => setApiKeySet(false)} />}>
+        <Route element={<Layout onRequestChangeKey={() => setChangingKey(true)} />}>
           <Route path="/readings"   element={<Readings />} />
           <Route path="/tutor"      element={<Tutor />} />
           <Route path="/briefs"     element={<Briefs />} />
@@ -41,6 +48,7 @@ export default function App() {
           <Route path="/exam"       element={<Exam />} />
           <Route path="/outline"    element={<Outline />} />
           <Route path="/glossary"   element={<Glossary />} />
+          <Route path="/texas-tech" element={<TexasTech />} />
         </Route>
       </Routes>
     </BrowserRouter>

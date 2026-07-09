@@ -25,9 +25,9 @@ const UpdateReadingSchema = z.object({
 });
 
 // GET /api/readings
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const readings = await getReadings();
+    const readings = await getReadings(req.userId);
     const list = readings.map(({ id, title, course, dateAdded, briefId }) => ({
       id, title, course, dateAdded, briefId,
     }));
@@ -38,7 +38,7 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
 // GET /api/readings/:id
 router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const reading = await getReading(req.params.id);
+    const reading = await getReading(req.params.id, req.userId);
     if (!reading) return next(createError("Reading not found", 404));
     res.json(reading);
   } catch (err) { next(err); }
@@ -52,6 +52,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const reading: Reading = {
       id: uuid(),
+      userId:    req.userId,
       title:     parsed.data.title,
       course:    parsed.data.course,
       content:   parsed.data.content,
@@ -65,7 +66,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 // PUT /api/readings/:id
 router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await getReading(req.params.id);
+    const existing = await getReading(req.params.id, req.userId);
     if (!existing) return next(createError("Reading not found", 404));
 
     const parsed = UpdateReadingSchema.safeParse(req.body);
@@ -86,9 +87,9 @@ router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
 // DELETE /api/readings/:id
 router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await getReading(req.params.id);
+    const existing = await getReading(req.params.id, req.userId);
     if (!existing) return next(createError("Reading not found", 404));
-    await deleteReading(req.params.id);
+    await deleteReading(req.params.id, req.userId);
     res.json({ success: true });
   } catch (err) { next(err); }
 });

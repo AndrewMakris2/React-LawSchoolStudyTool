@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
-import { chatCompletion, resolveApiKey } from "../lib/groqClient";
+import { chatCompletion } from "../lib/groqClient";
 import { practiceExamGenerator, practiceExamEssayGrader } from "../lib/prompts";
 import { saveExamAttempt, getExamAttempts } from "../lib/storage";
 import { createError } from "../middleware/errorHandler";
@@ -40,10 +40,9 @@ router.post("/generate", async (req: Request, res: Response, next: NextFunction)
     const parsed = GenerateSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
-    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const { course, difficulty, questionCount } = parsed.data;
     const messages = practiceExamGenerator(course, difficulty, questionCount);
-    const raw = await chatCompletion(messages, apiKey, { temperature: 0.8, maxTokens: 3000 });
+    const raw = await chatCompletion(messages, req.apiKey, { temperature: 0.8, maxTokens: 3000 });
 
     let result;
     try {
@@ -62,7 +61,6 @@ router.post("/submit", async (req: Request, res: Response, next: NextFunction) =
     const parsed = SubmitSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
-    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const { course, difficulty, questions, answers, timeSpentSeconds } = parsed.data;
 
     const feedback: ExamQuestionFeedback[] = [];
@@ -99,7 +97,7 @@ router.post("/submit", async (req: Request, res: Response, next: NextFunction) =
         }
 
         const gradeMessages = practiceExamEssayGrader(course, q as ExamQuestion, answer);
-        const gradeRaw = await chatCompletion(gradeMessages, apiKey, { temperature: 0.2, maxTokens: 512 });
+        const gradeRaw = await chatCompletion(gradeMessages, req.apiKey, { temperature: 0.2, maxTokens: 512 });
 
         let graded: { score: number; feedback: string; missedIssues: string };
         try {
@@ -121,6 +119,7 @@ router.post("/submit", async (req: Request, res: Response, next: NextFunction) =
 
     const attempt: ExamAttempt = {
       id:               uuid(),
+      userId:           req.userId,
       course,
       difficulty,
       questions:        questions as ExamQuestion[],
@@ -137,9 +136,9 @@ router.post("/submit", async (req: Request, res: Response, next: NextFunction) =
   } catch (err) { next(err); }
 });
 
-router.get("/history", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/history", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(await getExamAttempts());
+    res.json(await getExamAttempts(req.userId));
   } catch (err) { next(err); }
 });
 

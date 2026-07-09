@@ -3,9 +3,8 @@ import { NavLink } from "react-router-dom";
 import {
   BookOpen, MessageSquare, FileText, Target, CreditCard,
   BarChart2, Scale, ClipboardList, BookMarked, Library, KeyRound, Search,
+  GraduationCap,
 } from "lucide-react";
-import { clearApiKey } from "../api/client";
-
 const NAV_PRIMARY = [
   { to: "/readings",   icon: BookOpen,      label: "Readings"   },
   { to: "/tutor",      icon: MessageSquare, label: "Tutor"      },
@@ -21,17 +20,16 @@ const NAV_TOOLS = [
   { to: "/glossary", icon: Library,       label: "Glossary" },
 ];
 
+const NAV_GUIDES = [
+  { to: "/texas-tech", icon: GraduationCap, label: "Texas Tech Guide" },
+];
+
 interface SidebarProps {
-  onClearKey?: () => void;
+  onRequestChangeKey?: () => void;
   onOpenSearch?: () => void;
 }
 
-export function Sidebar({ onClearKey, onOpenSearch }: SidebarProps) {
-  function handleChangeKey() {
-    clearApiKey();
-    onClearKey?.();
-  }
-
+export function Sidebar({ onRequestChangeKey, onOpenSearch }: SidebarProps) {
   return (
     <aside className="no-print w-56 shrink-0 bg-gray-950 border-r border-gray-800 flex flex-col h-screen sticky top-0">
       <div className="px-5 py-6 border-b border-gray-800">
@@ -98,11 +96,35 @@ export function Sidebar({ onClearKey, onOpenSearch }: SidebarProps) {
             ))}
           </div>
         </div>
+
+        <div className="border-t border-gray-800 pt-3 mt-3">
+          <p className="text-xs text-gray-600 uppercase tracking-widest font-semibold px-3 mb-2">
+            School Guides
+          </p>
+          <div className="space-y-1">
+            {NAV_GUIDES.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-red-900/30 text-red-300 border border-red-800/50"
+                      : "text-gray-400 hover:text-gray-100 hover:bg-gray-800/60"
+                  }`
+                }
+              >
+                <Icon size={17} />
+                {label}
+              </NavLink>
+            ))}
+          </div>
+        </div>
       </nav>
 
       <div className="px-3 py-4 border-t border-gray-800 space-y-2">
         <button
-          onClick={handleChangeKey}
+          onClick={onRequestChangeKey}
           className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-800/60 transition-all"
         >
           <KeyRound size={14} />

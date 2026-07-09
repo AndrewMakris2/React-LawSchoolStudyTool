@@ -23,7 +23,7 @@ router.post("/", async (req, res, next) => {
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
         const { readingId, messages, coldCallMode, strictMode, hintRequested } = parsed.data;
-        const reading = await (0, storage_1.getReading)(readingId);
+        const reading = await (0, storage_1.getReading)(readingId, req.userId);
         if (!reading)
             return next((0, errorHandler_1.createError)("Reading not found", 404));
         const typedMessages = messages;
@@ -32,12 +32,11 @@ router.post("/", async (req, res, next) => {
             strict: strictMode,
             hint: hintRequested,
         });
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         res.setHeader("Content-Type", "text/event-stream");
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
         res.flushHeaders();
-        await (0, groqClient_1.streamChatCompletion)(fullMessages, apiKey, (chunk) => {
+        await (0, groqClient_1.streamChatCompletion)(fullMessages, req.apiKey, (chunk) => {
             res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
         }, { temperature: 0.8, maxTokens: 1024 });
         res.write(`data: ${JSON.stringify({ done: true })}\n\n`);

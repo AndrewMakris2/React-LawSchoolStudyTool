@@ -28,10 +28,9 @@ router.post("/generate", async (req, res, next) => {
         const parsed = GenerateSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { course, difficulty } = parsed.data;
         const messages = (0, prompts_1.issueSpotterPromptGenerator)(course, difficulty);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.9, maxTokens: 1024 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.9, maxTokens: 1024 });
         let result;
         try {
             result = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -51,10 +50,9 @@ router.post("/grade", async (req, res, next) => {
         const parsed = GradeSchema.safeParse(req.body);
         if (!parsed.success)
             return next((0, errorHandler_1.createError)(parsed.error.message, 400));
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const { course, difficulty, prompt, userAnswer, timeSpentSeconds } = parsed.data;
         const messages = (0, prompts_1.issueSpotter)(course, difficulty, prompt, userAnswer);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.3, maxTokens: 1500 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.3, maxTokens: 1500 });
         let graded;
         try {
             graded = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -65,6 +63,7 @@ router.post("/grade", async (req, res, next) => {
         }
         const attempt = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             course,
             difficulty,
             prompt,
@@ -82,9 +81,9 @@ router.post("/grade", async (req, res, next) => {
         next(err);
     }
 });
-router.get("/history", async (_req, res, next) => {
+router.get("/history", async (req, res, next) => {
     try {
-        res.json(await (0, storage_1.getDrillAttempts)());
+        res.json(await (0, storage_1.getDrillAttempts)(req.userId));
     }
     catch (err) {
         next(err);

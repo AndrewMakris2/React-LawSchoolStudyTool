@@ -64,39 +64,44 @@ async function readFile(filePath) {
 async function writeFile(filePath, data) {
     await promises_1.default.writeFile(filePath, JSON.stringify(data, null, 2));
 }
+// Every entity is stored in one flat JSON file shared by all users. Reads are
+// filtered down to the caller's userId; writes always operate on the FULL
+// unfiltered dataset (read raw, splice/filter just the caller's row, write
+// the whole file back) so one user's save/delete never clobbers another
+// user's rows sitting in the same file.
 // ── Readings ──────────────────────────────────────────────────────────────────
-async function getReadings() {
-    return readFile(FILES.readings);
+async function getReadings(userId) {
+    return (await readFile(FILES.readings)).filter((r) => r.userId === userId);
 }
-async function getReading(id) {
-    return (await getReadings()).find((r) => r.id === id);
+async function getReading(id, userId) {
+    return (await getReadings(userId)).find((r) => r.id === id);
 }
 async function saveReading(reading) {
-    const all = await getReadings();
-    const idx = all.findIndex((r) => r.id === reading.id);
+    const all = await readFile(FILES.readings);
+    const idx = all.findIndex((r) => r.id === reading.id && r.userId === reading.userId);
     if (idx === -1)
         all.push(reading);
     else
         all[idx] = reading;
     await writeFile(FILES.readings, all);
 }
-async function deleteReading(id) {
-    const all = await getReadings();
-    await writeFile(FILES.readings, all.filter((r) => r.id !== id));
+async function deleteReading(id, userId) {
+    const all = await readFile(FILES.readings);
+    await writeFile(FILES.readings, all.filter((r) => !(r.id === id && r.userId === userId)));
 }
 // ── Briefs ────────────────────────────────────────────────────────────────────
-async function getBriefs() {
-    return readFile(FILES.briefs);
+async function getBriefs(userId) {
+    return (await readFile(FILES.briefs)).filter((b) => b.userId === userId);
 }
-async function getBrief(id) {
-    return (await getBriefs()).find((b) => b.id === id);
+async function getBrief(id, userId) {
+    return (await getBriefs(userId)).find((b) => b.id === id);
 }
-async function getBriefByReadingId(readingId) {
-    return (await getBriefs()).find((b) => b.readingId === readingId);
+async function getBriefByReadingId(readingId, userId) {
+    return (await getBriefs(userId)).find((b) => b.readingId === readingId);
 }
 async function saveBrief(brief) {
-    const all = await getBriefs();
-    const idx = all.findIndex((b) => b.id === brief.id);
+    const all = await readFile(FILES.briefs);
+    const idx = all.findIndex((b) => b.id === brief.id && b.userId === brief.userId);
     if (idx === -1)
         all.push(brief);
     else
@@ -104,38 +109,40 @@ async function saveBrief(brief) {
     await writeFile(FILES.briefs, all);
 }
 // ── Decks ─────────────────────────────────────────────────────────────────────
-async function getDecks() {
-    return readFile(FILES.decks);
+async function getDecks(userId) {
+    return (await readFile(FILES.decks)).filter((d) => d.userId === userId);
 }
-async function getDeck(id) {
-    return (await getDecks()).find((d) => d.id === id);
+async function getDeck(id, userId) {
+    return (await getDecks(userId)).find((d) => d.id === id);
 }
 async function saveDeck(deck) {
-    const all = await getDecks();
-    const idx = all.findIndex((d) => d.id === deck.id);
+    const all = await readFile(FILES.decks);
+    const idx = all.findIndex((d) => d.id === deck.id && d.userId === deck.userId);
     if (idx === -1)
         all.push(deck);
     else
         all[idx] = deck;
     await writeFile(FILES.decks, all);
 }
-async function deleteDeck(id) {
-    await writeFile(FILES.decks, (await getDecks()).filter((d) => d.id !== id));
-    await writeFile(FILES.flashcards, (await getFlashcards()).filter((c) => c.deckId !== id));
+async function deleteDeck(id, userId) {
+    const allDecks = await readFile(FILES.decks);
+    await writeFile(FILES.decks, allDecks.filter((d) => !(d.id === id && d.userId === userId)));
+    const allCards = await readFile(FILES.flashcards);
+    await writeFile(FILES.flashcards, allCards.filter((c) => !(c.deckId === id && c.userId === userId)));
 }
 // ── Flashcards ────────────────────────────────────────────────────────────────
-async function getFlashcards() {
-    return readFile(FILES.flashcards);
+async function getFlashcards(userId) {
+    return (await readFile(FILES.flashcards)).filter((c) => c.userId === userId);
 }
-async function getFlashcardsByDeck(deckId) {
-    return (await getFlashcards()).filter((c) => c.deckId === deckId);
+async function getFlashcardsByDeck(deckId, userId) {
+    return (await getFlashcards(userId)).filter((c) => c.deckId === deckId);
 }
-async function getFlashcard(id) {
-    return (await getFlashcards()).find((c) => c.id === id);
+async function getFlashcard(id, userId) {
+    return (await getFlashcards(userId)).find((c) => c.id === id);
 }
 async function saveFlashcard(card) {
-    const all = await getFlashcards();
-    const idx = all.findIndex((c) => c.id === card.id);
+    const all = await readFile(FILES.flashcards);
+    const idx = all.findIndex((c) => c.id === card.id && c.userId === card.userId);
     if (idx === -1)
         all.push(card);
     else
@@ -143,9 +150,9 @@ async function saveFlashcard(card) {
     await writeFile(FILES.flashcards, all);
 }
 async function saveFlashcards(cards) {
-    const all = await getFlashcards();
+    const all = await readFile(FILES.flashcards);
     for (const card of cards) {
-        const idx = all.findIndex((c) => c.id === card.id);
+        const idx = all.findIndex((c) => c.id === card.id && c.userId === card.userId);
         if (idx === -1)
             all.push(card);
         else
@@ -154,31 +161,31 @@ async function saveFlashcards(cards) {
     await writeFile(FILES.flashcards, all);
 }
 // ── Drills ────────────────────────────────────────────────────────────────────
-async function getDrillAttempts() {
-    return readFile(FILES.drills);
+async function getDrillAttempts(userId) {
+    return (await readFile(FILES.drills)).filter((a) => a.userId === userId);
 }
 async function saveDrillAttempt(attempt) {
-    const all = await getDrillAttempts();
+    const all = await readFile(FILES.drills);
     all.push(attempt);
     await writeFile(FILES.drills, all);
 }
 // ── Exams ─────────────────────────────────────────────────────────────────────
-async function getExamAttempts() {
-    return readFile(FILES.exams);
+async function getExamAttempts(userId) {
+    return (await readFile(FILES.exams)).filter((a) => a.userId === userId);
 }
 async function saveExamAttempt(attempt) {
-    const all = await getExamAttempts();
+    const all = await readFile(FILES.exams);
     all.push(attempt);
     await writeFile(FILES.exams, all);
 }
 // ── Glossary ──────────────────────────────────────────────────────────────────
-async function getGlossaryEntries() {
-    return readFile(FILES.glossary);
+async function getGlossaryEntries(userId) {
+    return (await readFile(FILES.glossary)).filter((e) => e.userId === userId);
 }
 async function saveGlossaryEntries(entries) {
-    const all = await getGlossaryEntries();
+    const all = await readFile(FILES.glossary);
     for (const entry of entries) {
-        const idx = all.findIndex((e) => e.id === entry.id);
+        const idx = all.findIndex((e) => e.id === entry.id && e.userId === entry.userId);
         if (idx === -1)
             all.push(entry);
         else
@@ -186,33 +193,39 @@ async function saveGlossaryEntries(entries) {
     }
     await writeFile(FILES.glossary, all);
 }
-async function deleteGlossaryEntry(id) {
-    await writeFile(FILES.glossary, (await getGlossaryEntries()).filter((e) => e.id !== id));
+async function deleteGlossaryEntry(id, userId) {
+    const all = await readFile(FILES.glossary);
+    await writeFile(FILES.glossary, all.filter((e) => !(e.id === id && e.userId === userId)));
 }
 // ── Outlines ──────────────────────────────────────────────────────────────────
-async function getOutlines() {
-    return readFile(FILES.outlines);
+async function getOutlines(userId) {
+    return (await readFile(FILES.outlines)).filter((o) => o.userId === userId);
 }
 async function saveOutline(outline) {
-    const all = await getOutlines();
-    const idx = all.findIndex((o) => o.id === outline.id);
+    const all = await readFile(FILES.outlines);
+    const idx = all.findIndex((o) => o.id === outline.id && o.userId === outline.userId);
     if (idx === -1)
         all.push(outline);
     else
         all[idx] = outline;
     await writeFile(FILES.outlines, all);
 }
-async function deleteOutline(id) {
-    await writeFile(FILES.outlines, (await getOutlines()).filter((o) => o.id !== id));
+async function deleteOutline(id, userId) {
+    const all = await readFile(FILES.outlines);
+    await writeFile(FILES.outlines, all.filter((o) => !(o.id === id && o.userId === userId)));
 }
 // ── Seed ──────────────────────────────────────────────────────────────────────
+// Seed data is owned by the "local-dev" user (the dev-mode fallback identity)
+// so it's visible during local development but not attributed to any real visitor.
+const SEED_USER_ID = "local-dev";
 async function seedDemoData() {
-    const readings = await getReadings();
+    const readings = await readFile(FILES.readings);
     if (readings.length > 0)
         return;
     const seed = [
         {
             id: "seed-reading-1",
+            userId: SEED_USER_ID,
             title: "Palsgraf v. Long Island Railroad Co.",
             course: "Torts",
             dateAdded: new Date().toISOString(),
@@ -241,6 +254,7 @@ Reversed. Judgment for defendant railroad.`,
         },
         {
             id: "seed-reading-2",
+            userId: SEED_USER_ID,
             title: "Hadley v. Baxendale",
             course: "Contracts",
             dateAdded: new Date().toISOString(),
@@ -270,5 +284,5 @@ New trial ordered; lost profits damages were improperly awarded.`,
     ];
     for (const r of seed)
         await saveReading(r);
-    console.log("🌱 Seeded demo readings (Palsgraf + Hadley v. Baxendale)");
+    console.log("🌱 Seeded demo readings (Palsgraf + Hadley v. Baxendale) for local-dev user");
 }

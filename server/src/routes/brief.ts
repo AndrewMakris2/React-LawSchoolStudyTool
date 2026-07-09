@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
 import { getReading, saveBrief, getBriefs, getBrief, saveReading } from "../lib/storage";
-import { chatCompletion, resolveApiKey } from "../lib/groqClient";
+import { chatCompletion } from "../lib/groqClient";
 import { briefBuilder } from "../lib/prompts";
 import { createError } from "../middleware/errorHandler";
 import { sanitizeJson } from "../lib/sanitizeJson";
@@ -23,15 +23,15 @@ const UpdateBriefSchema = z.object({
   notes:             z.string().optional(),
 });
 
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(await getBriefs());
+    res.json(await getBriefs(req.userId));
   } catch (err) { next(err); }
 });
 
 router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const brief = await getBrief(req.params.id);
+    const brief = await getBrief(req.params.id, req.userId);
     if (!brief) return next(createError("Brief not found", 404));
     res.json(brief);
   } catch (err) { next(err); }
@@ -42,12 +42,11 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const parsed = GenerateBriefSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));
 
-    const reading = await getReading(parsed.data.readingId);
+    const reading = await getReading(parsed.data.readingId, req.userId);
     if (!reading) return next(createError("Reading not found", 404));
 
-    const apiKey = resolveApiKey(req.headers["x-groq-api-key"] as string | undefined);
     const messages = briefBuilder(reading.content, reading.title);
-    const raw = await chatCompletion(messages, apiKey, { temperature: 0.3, maxTokens: 2048 });
+    const raw = await chatCompletion(messages, req.apiKey, { temperature: 0.3, maxTokens: 2048 });
 
     let parsedBrief: Partial<CaseBrief>;
     try {
@@ -60,6 +59,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const now = new Date().toISOString();
     const brief: CaseBrief = {
       id:                uuid(),
+      userId:            req.userId,
       readingId:         reading.id,
       title:             reading.title,
       course:            reading.course,
@@ -83,7 +83,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
 router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await getBrief(req.params.id);
+    const existing = await getBrief(req.params.id, req.userId);
     if (!existing) return next(createError("Brief not found", 404));
     const parsed = UpdateBriefSchema.safeParse(req.body);
     if (!parsed.success) return next(createError(parsed.error.message, 400));

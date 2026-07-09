@@ -19,9 +19,10 @@ const GenerateSchema = zod_1.z.object({
     sourceBriefId: zod_1.z.string().optional(),
     cardCount: zod_1.z.number().min(3).max(20).default(8),
 });
-function initialCard(deckId, front, back, hypo) {
+function initialCard(userId, deckId, front, back, hypo) {
     return {
         id: (0, uuid_1.v4)(),
+        userId,
         deckId,
         front,
         back,
@@ -33,9 +34,9 @@ function initialCard(deckId, front, back, hypo) {
         lastGrade: undefined,
     };
 }
-router.get("/", async (_req, res, next) => {
+router.get("/", async (req, res, next) => {
     try {
-        res.json(await (0, storage_1.getDecks)());
+        res.json(await (0, storage_1.getDecks)(req.userId));
     }
     catch (err) {
         next(err);
@@ -43,10 +44,10 @@ router.get("/", async (_req, res, next) => {
 });
 router.get("/:deckId/cards", async (req, res, next) => {
     try {
-        const deck = await (0, storage_1.getDeck)(req.params.deckId);
+        const deck = await (0, storage_1.getDeck)(req.params.deckId, req.userId);
         if (!deck)
             return next((0, errorHandler_1.createError)("Deck not found", 404));
-        res.json(await (0, storage_1.getFlashcardsByDeck)(req.params.deckId));
+        res.json(await (0, storage_1.getFlashcardsByDeck)(req.params.deckId, req.userId));
     }
     catch (err) {
         next(err);
@@ -60,13 +61,13 @@ router.post("/", async (req, res, next) => {
         const { name, course, sourceReadingId, sourceBriefId, cardCount } = parsed.data;
         let sourceText = "";
         if (sourceReadingId) {
-            const reading = await (0, storage_1.getReading)(sourceReadingId);
+            const reading = await (0, storage_1.getReading)(sourceReadingId, req.userId);
             if (!reading)
                 return next((0, errorHandler_1.createError)("Reading not found", 404));
             sourceText = reading.content;
         }
         else if (sourceBriefId) {
-            const brief = await (0, storage_1.getBrief)(sourceBriefId);
+            const brief = await (0, storage_1.getBrief)(sourceBriefId, req.userId);
             if (!brief)
                 return next((0, errorHandler_1.createError)("Brief not found", 404));
             sourceText = [
@@ -80,9 +81,8 @@ router.post("/", async (req, res, next) => {
         else {
             return next((0, errorHandler_1.createError)("Must provide sourceReadingId or sourceBriefId", 400));
         }
-        const apiKey = (0, groqClient_1.resolveApiKey)(req.headers["x-groq-api-key"]);
         const messages = (0, prompts_1.flashcardGenerator)(sourceText, course, cardCount);
-        const raw = await (0, groqClient_1.chatCompletion)(messages, apiKey, { temperature: 0.7, maxTokens: 2048 });
+        const raw = await (0, groqClient_1.chatCompletion)(messages, req.apiKey, { temperature: 0.7, maxTokens: 2048 });
         let result;
         try {
             result = JSON.parse((0, sanitizeJson_1.sanitizeJson)(raw));
@@ -94,6 +94,7 @@ router.post("/", async (req, res, next) => {
         const now = new Date().toISOString();
         const deck = {
             id: (0, uuid_1.v4)(),
+            userId: req.userId,
             name,
             course,
             sourceReadingId,
@@ -101,7 +102,7 @@ router.post("/", async (req, res, next) => {
             dateCreated: now,
             cardCount: result.cards.length,
         };
-        const cards = result.cards.map((c) => initialCard(deck.id, c.front, c.back, c.hypo));
+        const cards = result.cards.map((c) => initialCard(req.userId, deck.id, c.front, c.back, c.hypo));
         await (0, storage_1.saveDeck)(deck);
         await (0, storage_1.saveFlashcards)(cards);
         res.status(201).json({ deck, cards });
@@ -112,10 +113,10 @@ router.post("/", async (req, res, next) => {
 });
 router.delete("/:deckId", async (req, res, next) => {
     try {
-        const deck = await (0, storage_1.getDeck)(req.params.deckId);
+        const deck = await (0, storage_1.getDeck)(req.params.deckId, req.userId);
         if (!deck)
             return next((0, errorHandler_1.createError)("Deck not found", 404));
-        await (0, storage_1.deleteDeck)(req.params.deckId);
+        await (0, storage_1.deleteDeck)(req.params.deckId, req.userId);
         res.json({ success: true });
     }
     catch (err) {

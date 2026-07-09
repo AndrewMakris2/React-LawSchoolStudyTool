@@ -13,6 +13,7 @@ import examRouter from "./routes/exam";
 import outlineRouter from "./routes/outline";
 import glossaryRouter from "./routes/glossary";
 import { initStorage } from "./lib/storage";
+import { requireAuth } from "./middleware/auth";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,16 +42,16 @@ app.use(cors({
 
 app.use(express.json({ limit: "2mb" }));
 
-app.use("/api/readings",      readingsRouter);
-app.use("/api/chat",          chatRouter);
-app.use("/api/brief",         briefRouter);
-app.use("/api/rule-polish",   rulePolishRouter);
-app.use("/api/issue-spotter", issueSpotterRouter);
-app.use("/api/flashcards",    flashcardsRouter);
-app.use("/api/review",        reviewRouter);
-app.use("/api/exam",          examRouter);
-app.use("/api/outline",       outlineRouter);
-app.use("/api/glossary",      glossaryRouter);
+app.use("/api/readings",      requireAuth, readingsRouter);
+app.use("/api/chat",          requireAuth, chatRouter);
+app.use("/api/brief",         requireAuth, briefRouter);
+app.use("/api/rule-polish",   requireAuth, rulePolishRouter);
+app.use("/api/issue-spotter", requireAuth, issueSpotterRouter);
+app.use("/api/flashcards",    requireAuth, flashcardsRouter);
+app.use("/api/review",        requireAuth, reviewRouter);
+app.use("/api/exam",          requireAuth, examRouter);
+app.use("/api/outline",       requireAuth, outlineRouter);
+app.use("/api/glossary",      requireAuth, glossaryRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", model: process.env.GROQ_MODEL });
