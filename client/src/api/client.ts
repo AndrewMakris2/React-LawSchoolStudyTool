@@ -60,6 +60,17 @@ export const api = {
       request<CaseBrief>(`/brief/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
+  iracBrief: {
+    list:   () => request<IracBrief[]>("/irac-brief"),
+    get:    (id: string) => request<IracBrief>(`/irac-brief/${id}`),
+    generateFromReading: (readingId: string) =>
+      request<IracBrief>("/irac-brief", { method: "POST", body: JSON.stringify({ readingId }) }),
+    generateFromText: (data: { caseText: string; title: string; course?: CourseTag }) =>
+      request<IracBrief>("/irac-brief", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<IracBrief>) =>
+      request<IracBrief>(`/irac-brief/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
   rulePolish: (userRule: string, style: PolishStyle, course?: CourseTag) =>
     request<{ polished: string }>("/rule-polish", {
       method: "POST",
@@ -225,6 +236,11 @@ export interface CaseBrief {
   id: string; readingId: string; title: string; course: CourseTag;
   facts: string; proceduralHistory: string; issues: string; holding: string;
   rule: string; reasoning: string; disposition: string; notes: string;
+  dateCreated: string; dateModified: string;
+}
+export interface IracBrief {
+  id: string; readingId?: string; caseText?: string; title: string; course?: CourseTag;
+  issue: string; rule: string; application: string; conclusion: string;
   dateCreated: string; dateModified: string;
 }
 export interface Flashcard {

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.socraticTutor = socraticTutor;
 exports.briefBuilder = briefBuilder;
+exports.iracBriefBuilder = iracBriefBuilder;
 exports.rulePolisher = rulePolisher;
 exports.issueSpotter = issueSpotter;
 exports.issueSpotterPromptGenerator = issueSpotterPromptGenerator;
@@ -73,6 +74,30 @@ READING TITLE: ${readingTitle}
 
 READING:
 ${readingContent.slice(0, 6000)}`,
+        },
+    ];
+}
+function iracBriefBuilder(caseText, caseTitle) {
+    return [
+        {
+            role: "system",
+            content: `You are a precise legal analyst. ${DISCLAIMER} Generate case briefs strictly in IRAC format (Issue, Rule, Application, Conclusion). Return valid JSON only. No markdown fences, no explanation outside the JSON object. All string values must be on a single line — use spaces instead of newlines inside JSON strings.`,
+        },
+        {
+            role: "user",
+            content: `Generate an IRAC-format brief for the following case. Return ONLY a valid JSON object with exactly these keys. Do NOT use newlines inside string values — write each field as a single continuous string.
+
+{
+  "issue": "the precise legal question presented, phrased as a yes/no question when possible",
+  "rule": "the governing legal rule, stated with all required elements",
+  "application": "how the court (or how the rule should be) applied to the specific facts of this case — the core analysis",
+  "conclusion": "the resolution — how the issue was decided and why"
+}
+
+CASE TITLE: ${caseTitle}
+
+CASE TEXT:
+${caseText.slice(0, 6000)}`,
         },
     ];
 }

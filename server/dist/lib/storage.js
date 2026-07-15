@@ -12,6 +12,9 @@ exports.getBriefs = getBriefs;
 exports.getBrief = getBrief;
 exports.getBriefByReadingId = getBriefByReadingId;
 exports.saveBrief = saveBrief;
+exports.getIracBriefs = getIracBriefs;
+exports.getIracBrief = getIracBrief;
+exports.saveIracBrief = saveIracBrief;
 exports.getDecks = getDecks;
 exports.getDeck = getDeck;
 exports.saveDeck = saveDeck;
@@ -37,6 +40,7 @@ const DATA_DIR = path_1.default.join(__dirname, "../../data");
 const FILES = {
     readings: path_1.default.join(DATA_DIR, "readings.json"),
     briefs: path_1.default.join(DATA_DIR, "briefs.json"),
+    iracBriefs: path_1.default.join(DATA_DIR, "iracBriefs.json"),
     flashcards: path_1.default.join(DATA_DIR, "flashcards.json"),
     decks: path_1.default.join(DATA_DIR, "decks.json"),
     drills: path_1.default.join(DATA_DIR, "drills.json"),
@@ -107,6 +111,22 @@ async function saveBrief(brief) {
     else
         all[idx] = brief;
     await writeFile(FILES.briefs, all);
+}
+// ── IRAC Briefs ─────────────────────────────────────────────────────────────
+async function getIracBriefs(userId) {
+    return (await readFile(FILES.iracBriefs)).filter((b) => b.userId === userId);
+}
+async function getIracBrief(id, userId) {
+    return (await getIracBriefs(userId)).find((b) => b.id === id);
+}
+async function saveIracBrief(brief) {
+    const all = await readFile(FILES.iracBriefs);
+    const idx = all.findIndex((b) => b.id === brief.id && b.userId === brief.userId);
+    if (idx === -1)
+        all.push(brief);
+    else
+        all[idx] = brief;
+    await writeFile(FILES.iracBriefs, all);
 }
 // ── Decks ─────────────────────────────────────────────────────────────────────
 async function getDecks(userId) {

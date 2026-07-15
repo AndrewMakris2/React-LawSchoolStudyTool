@@ -42,6 +42,23 @@ export interface CaseBrief {
   dateModified: string;
 }
 
+// ── IRAC Briefs ─────────────────────────────────────────────────────────────
+
+export interface IracBrief {
+  id: string;
+  userId: string;
+  readingId?: string;   // set when generated from a saved Reading
+  caseText?: string;    // set when generated from ad-hoc pasted text (no Reading)
+  title: string;
+  course?: CourseTag;
+  issue: string;
+  rule: string;
+  application: string;
+  conclusion: string;
+  dateCreated: string;
+  dateModified: string;
+}
+
 export type PolishStyle = "concise" | "standard" | "verbose";
 
 export interface Flashcard {

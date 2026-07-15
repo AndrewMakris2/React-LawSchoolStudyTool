@@ -3,6 +3,7 @@ import path from "path";
 import {
   Reading,
   CaseBrief,
+  IracBrief,
   Flashcard,
   FlashcardDeck,
   DrillAttempt,
@@ -11,13 +12,14 @@ import {
   CourseOutline,
 } from "../types";
 
-export type { Reading, CaseBrief, Flashcard, FlashcardDeck, DrillAttempt, ExamAttempt, GlossaryEntry, CourseOutline };
+export type { Reading, CaseBrief, IracBrief, Flashcard, FlashcardDeck, DrillAttempt, ExamAttempt, GlossaryEntry, CourseOutline };
 
 const DATA_DIR = path.join(__dirname, "../../data");
 
 const FILES = {
   readings:  path.join(DATA_DIR, "readings.json"),
   briefs:    path.join(DATA_DIR, "briefs.json"),
+  iracBriefs: path.join(DATA_DIR, "iracBriefs.json"),
   flashcards: path.join(DATA_DIR, "flashcards.json"),
   decks:     path.join(DATA_DIR, "decks.json"),
   drills:    path.join(DATA_DIR, "drills.json"),
@@ -89,6 +91,21 @@ export async function saveBrief(brief: CaseBrief): Promise<void> {
   if (idx === -1) all.push(brief);
   else all[idx] = brief;
   await writeFile(FILES.briefs, all);
+}
+
+// ── IRAC Briefs ─────────────────────────────────────────────────────────────
+export async function getIracBriefs(userId: string): Promise<IracBrief[]> {
+  return (await readFile<IracBrief>(FILES.iracBriefs)).filter((b) => b.userId === userId);
+}
+export async function getIracBrief(id: string, userId: string): Promise<IracBrief | undefined> {
+  return (await getIracBriefs(userId)).find((b) => b.id === id);
+}
+export async function saveIracBrief(brief: IracBrief): Promise<void> {
+  const all = await readFile<IracBrief>(FILES.iracBriefs);
+  const idx = all.findIndex((b) => b.id === brief.id && b.userId === brief.userId);
+  if (idx === -1) all.push(brief);
+  else all[idx] = brief;
+  await writeFile(FILES.iracBriefs, all);
 }
 
 // ── Decks ─────────────────────────────────────────────────────────────────────
