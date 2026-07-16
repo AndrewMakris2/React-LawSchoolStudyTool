@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { api, CaseBrief, IracBrief, Reading, PolishStyle, GlossaryEntry, CourseTag } from "../api/client";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Spinner } from "../components/ui/Spinner";
-import { FileText, Wand2, Save, ClipboardList, PenLine } from "lucide-react";
+import { FileText, Wand2, Save, ClipboardList, PenLine, Upload } from "lucide-react";
 import { PrintButton } from "../components/PrintButton";
 import { GlossaryText } from "../components/GlossaryText";
 
@@ -65,6 +65,17 @@ export function Briefs() {
   const [pasteCourse, setPasteCourse] = useState<CourseTag>("Contracts");
   const [pasteText, setPasteText]     = useState("");
   const [generatingPaste, setGeneratingPaste] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setPasteText(ev.target?.result as string ?? "");
+    reader.readAsText(file);
+    if (!pasteTitle) setPasteTitle(file.name.replace(/\.(txt|md)$/, ""));
+    e.target.value = "";
+  };
 
   const load = async () => {
     try {
@@ -452,9 +463,18 @@ export function Briefs() {
           <div className="space-y-6">
             {/* Paste a new case */}
             <div>
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                <PenLine size={14} /> Paste a Case
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <PenLine size={14} /> Paste or Upload a Case
+                </h2>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs text-law-400 hover:text-law-300"
+                >
+                  <Upload size={13} /> Upload .txt / .md
+                </button>
+                <input ref={fileRef} type="file" accept=".txt,.md" className="hidden" onChange={handleFile} />
+              </div>
               <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
                 <input
                   type="text"
@@ -471,7 +491,7 @@ export function Briefs() {
                   {COURSES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <textarea
-                  placeholder="Paste the case text here..."
+                  placeholder="Paste the case text here, or upload a .txt / .md file above..."
                   rows={6}
                   value={pasteText}
                   onChange={(e) => setPasteText(e.target.value)}
